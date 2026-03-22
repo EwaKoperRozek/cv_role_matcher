@@ -30,12 +30,14 @@ img {
   display: block;
 }
 
-/* EKRAN */
+/* EKRAN / BAZA */
 
 #a4 {
-  width: min(100%, 21cm);
-  padding: 0.9cm;
+  width: 210mm;
+  min-height: 297mm;
+  padding: 9mm;
   margin: 0 auto;
+  background: white;
 }
 
 #header {
@@ -224,6 +226,7 @@ ul li::before {
 
   #a4 {
     width: 100%;
+    min-height: auto;
     padding: 16px;
     margin: 0;
   }
@@ -267,7 +270,7 @@ ul li::before {
 
 @page {
   size: A4;
-  margin: 18mm 14mm 18mm 14mm;
+  margin: 0;
 }
 
 @media print {
@@ -292,10 +295,11 @@ ul li::before {
   }
 
   #a4 {
-    width: auto;
-    max-width: none;
+    width: 210mm;
+    min-height: 297mm;
+    padding: 9mm;
     margin: 0;
-    padding: 0;
+    max-width: none;
   }
 
   #header,
