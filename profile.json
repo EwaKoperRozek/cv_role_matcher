@@ -1,0 +1,295 @@
+{
+  "meta": {
+    "language": "pl",
+    "document_type": "cv",
+    "template_version": "1.0",
+    "candidate_profile_type": "base-template",
+    "output_format": [
+      "json",
+      "pdf"
+    ]
+  },
+  "target": {
+    "job_title": "AI Engineer (MCP + Agents)",
+    "company": "IN4GE sp. z o.o.",
+    "location": "Cała Polska / praca zdalna",
+    "work_mode": "remote",
+    "employment_type": "B2B",
+    "seniority": "mid/senior",
+    "job_language": "pl",
+    "cv_language": "pl",
+    "source": "Pracuj.pl",
+    "keywords": [
+      "Python",
+      "REST API",
+      "Redis",
+      "Docker",
+      "FastAPI",
+      "AI/ML",
+      "backend",
+      "MCP",
+      "agents",
+      "async",
+      "systemy rozproszone"
+    ],
+    "priorities": [
+      "Python",
+      "AI",
+      "backend",
+      "projekty techniczne",
+      "dopasowanie ATS"
+    ]
+  },
+  "render": {
+    "show_photo": true,
+    "show_rodo": true,
+    "theme": "default",
+    "layout": "single-column",
+    "pdf_mode": true
+  },
+  "sections": [
+    { "id": "education", "visible": true },
+    { "id": "projects", "visible": true },
+    { "id": "experience", "visible": true },
+    { "id": "skills", "visible": true },
+    { "id": "certificates", "visible": true },
+    { "id": "rodo", "visible": true }
+  ],
+  "name": "Ewa",
+  "surname": "Koper-Różek",
+  "city": "Poznań",
+  "email": "ewa.koper-rozek@gmail.com",
+  "phone": "+48 695 636 854",
+  "photo": "zdjecie.jpg",
+  "description": "Interesuję się obszarem AI, UX/UI oraz tworzeniem estetycznych i funkcjonalnych interfejsów webowych. Posiadam praktyczne doświadczenie w HTML, CSS, JavaScript i pracy nad własnymi stronami internetowymi, a także rozwijam się w kierunku projektowania czytelnych rozwiązań cyfrowych z naciskiem na doświadczenie użytkownika, warstwę wizualną i logikę działania interaktywnych elementów UI.",
+  "skillstitle": "Umiejętności",
+  "skills": [
+    {
+      "id": "frontend",
+      "visible": true,
+      "name": "Frontend",
+      "description": [
+        "HTML",
+        "CSS",
+        "JavaScript",
+        "TypeScript (podstawy)",
+        "WordPress",
+        "WooCommerce"
+      ]
+    },
+    {
+      "id": "tools-tech",
+      "visible": true,
+      "name": "Narzędzia i technologie",
+      "description": [
+        "Git",
+        "Node.js (podstawy)",
+        "npm (podstawy)",
+        "JSON",
+        "ChatGPT",
+        "Canva",
+        "Adobe Photoshop",
+        "Lightroom"
+      ]
+    },
+    {
+      "id": "ux-ui-design",
+      "visible": true,
+      "name": "UX / UI / design",
+      "description": [
+        "Podstawy UX design",
+        "Badania UX",
+        "Projektowanie treści",
+        "Szybkie prototypowanie",
+        "Tworzenie prostych assetów graficznych"
+      ]
+    },
+    {
+      "id": "additional",
+      "visible": true,
+      "name": "Dodatkowe",
+      "description": [
+        "Google Workspace",
+        "SharePoint Online",
+        "Teams",
+        "Prompt engineering",
+        "Tworzenie modeli ChatGPT z bazą wiedzy"
+      ]
+    },
+    {
+      "id": "languages",
+      "visible": true,
+      "name": "Języki",
+      "description": [
+        "Polski – native",
+        "Angielski – B2"
+      ]
+    }
+  ],
+  "certificatestitle": "Certyfikaty",
+  "certificates": [
+    {
+      "id": "google-ux-design",
+      "visible": true,
+      "name": "Start the UX Design Process: Empathize, Define, and Ideate",
+      "issuer": "Google",
+      "date": "2023",
+      "description": [
+        "projektowanie treści UX",
+        "badania UX",
+        "doświadczenie użytkownika",
+        "projektowanie szkiców roboczych",
+        "szybkie prototypowanie"
+      ]
+    },
+    {
+      "id": "ai-toolbox-training",
+      "visible": true,
+      "name": "AI Toolbox Training",
+      "issuer": "Securitum",
+      "date": "2025",
+      "description": [
+        "N8N",
+        "Make",
+        "Zapier",
+        "Notion",
+        "automatyzacja procesów biznesowych",
+        "chatboty",
+        "modele LLM"
+      ]
+    },
+    {
+      "id": "cybersecurity-hawe",
+      "visible": true,
+      "name": "Cybersecurity for HAWE",
+      "issuer": "Securitum / Krzysztof Zams",
+      "date": "2025",
+      "description": [
+        "data leaks",
+        "AI and cybersecurity",
+        "remote work security"
+      ]
+    }
+  ],
+  "projectstitle": "Projekty",
+  "projects": [
+    {
+      "id": "cv-generator-ai",
+      "visible": true,
+      "name": "CV Generator AI",
+      "url": "",
+      "date": "2025 – obecnie",
+      "description": [
+        "Projekt generatora CV wykorzystującego JSON, HTML, CSS i JavaScript.",
+        "Automatyczne generowanie dokumentu PDF z użyciem Puppeteer.",
+        "Rozwój własnego szablonu CV z naciskiem na czytelny układ, estetykę i dopasowanie do konkretnych ofert pracy."
+      ]
+    },
+    {
+      "id": "cv-generator-ai",
+      "visible": true,
+      "name": "CV Generator AI",
+      "url": "",
+      "date": "2025 – obecnie",
+      "description": [
+        "Projekt generatora CV wykorzystującego JSON, HTML, CSS i JavaScript.",
+        "Automatyczne generowanie dokumentu PDF z użyciem Puppeteer.",
+        "Rozwój własnego szablonu CV z naciskiem na czytelny układ, estetykę i dopasowanie do konkretnych ofert pracy."
+      ]
+    },
+    {
+      "id": "evastories",
+      "visible": true,
+      "name": "Strona evastories.pl",
+      "url": "https://evastories.pl",
+      "date": "2024 – 2025",
+      "description": [
+        "Samodzielne stworzenie strony internetowej w WordPress.",
+        "Praca nad układem treści, estetyką wizualną i spójnością prezentacji marki.",
+        "Wykorzystanie HTML, CSS oraz narzędzi graficznych do budowy i edycji treści."
+      ]
+    },
+    {
+      "id": "cozacosmos-shop",
+      "visible": true,
+      "name": "Sklep internetowy cozacosmos.pl",
+      "url": "https://cozacosmos.pl",
+      "date": "2025 – obecnie",
+      "description": [
+        "Uruchomienie sklepu internetowego opartego o WordPress i WooCommerce.",
+        "Samodzielne zarządzanie treściami, grafikami i doświadczeniem użytkownika.",
+        "Tworzenie assetów wizualnych i materiałów promocyjnych z wykorzystaniem Canva, Photoshop i Lightroom."
+      ]
+    }
+  ],
+  "educationtitle": "Edukacja",
+  "education": [
+    {
+      "id": "pp-ai-ml",
+      "visible": true,
+      "school": "Politechnika Poznańska",
+      "date": "2026 – obecnie",
+      "degree": "Sztuczna Inteligencja i Uczenie Maszynowe, Teleinformatyka",
+      "gpa": "",
+      "coursework": [
+        "Przetwarzanie danych i uczenie maszynowe"
+      ]
+    },
+    {
+      "id": "pp-networks",
+      "visible": true,
+      "school": "Politechnika Poznańska",
+      "date": "2020 – 2024",
+      "degree": "Elektronika i Telekomunikacja, specjalność: Sieci Komputerowe i Technologie Internetowe",
+      "gpa": "",
+      "coursework": []
+    }
+  ],
+  "experiencetitle": "Doświadczenie",
+  "experience": [
+    {
+      "id": "own-business",
+      "visible": true,
+      "position": "Własna działalność gospodarcza / marka własna",
+      "date": "2025 – obecnie",
+      "company": "cozacosmos.pl / poleandpic",
+      "location": "Poznań, Polska",
+      "description": [
+        "Projektowanie i rozwój własnych marek internetowych.",
+        "Samodzielne stworzenie i rozwój strony internetowej oraz sklepu online w WordPress i WooCommerce.",
+        "Tworzenie treści wizualnych, grafik i materiałów promocyjnych na stronę oraz social media.",
+        "Planowanie publikacji, dbanie o spójność wizualną marki i doświadczenie użytkownika.",
+        "Łączenie pracy technicznej, kreatywnej i organizacyjnej w modelu end-to-end."
+      ]
+    },
+    {
+      "id": "hawe-noc",
+      "visible": true,
+      "position": "Specjalista 1. linii wsparcia / Operator NOC",
+      "date": "2021 – obecnie",
+      "company": "HAWE Telekom",
+      "location": "Poznań, Polska",
+      "description": [
+        "Praca w środowisku zadaniowym wymagającym samodzielności, dokładności i sprawnej komunikacji.",
+        "Codzienna współpraca z zespołem, obsługa zgłoszeń oraz koordynowanie działań operacyjnych.",
+        "Tworzenie i aktualizacja dokumentacji oraz materiałów instruktażowych.",
+        "Doświadczenie w pracy procesowej, testowaniu zmian i dbaniu o jakość realizowanych działań."
+      ]
+    },
+    {
+      "id": "photography",
+      "visible": true,
+      "position": "Działalność nierejestrowana – fotografia",
+      "date": "2018 – 2025",
+      "company": "Własna marka",
+      "location": "Poznań, Polska",
+      "description": [
+        "Prowadzenie działalności fotograficznej i współpraca z klientami indywidualnymi.",
+        "Realizacja ponad 100 sesji fotograficznych.",
+        "Tworzenie materiałów wizualnych, obróbka zdjęć oraz dbanie o estetykę prezentowanych treści.",
+        "Doświadczenie w pracy z klientem, komunikacji i samodzielnym prowadzeniu projektów."
+      ]
+    }
+  ],
+  "rodo": "Wyrażam zgodę na przetwarzanie moich danych osobowych zawartych w CV dla potrzeb procesu rekrutacji zgodnie z Rozporządzeniem Parlamentu Europejskiego i Rady (UE) 2016/679 (RODO)."
+}
