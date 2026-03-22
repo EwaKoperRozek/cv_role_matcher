@@ -11,6 +11,8 @@ html {
   line-height: 1.35;
   background: white;
   color: #111;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
 }
 
 body {
@@ -28,13 +30,13 @@ img {
   display: block;
 }
 
-#a4 {
-  width: 21cm;
-  padding: 0.9cm;
-  margin: auto;
-}
+/* EKRAN */
 
-/* HEADER */
+#a4 {
+  width: min(100%, 21cm);
+  padding: 0.9cm;
+  margin: 0 auto;
+}
 
 #header {
   display: flex;
@@ -59,6 +61,7 @@ img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  display: block;
 }
 
 #title {
@@ -83,6 +86,7 @@ img {
 .contact-info {
   margin-top: 0.2rem;
   gap: 1.5rem;
+  flex-wrap: wrap;
 }
 
 .description-info {
@@ -90,8 +94,6 @@ img {
   max-width: 600px;
   text-align: justify;
 }
-
-/* SEKCJE */
 
 .section-head {
   display: inline-block;
@@ -103,8 +105,6 @@ img {
   margin-top: 0.9rem;
   margin-bottom: 0.3rem;
 }
-
-/* ENTRY */
 
 .cv-entry {
   position: relative;
@@ -119,8 +119,6 @@ img {
   margin-top: 0.2rem;
 }
 
-/* timeline */
-
 .cv-entry::before {
   content: "";
   position: absolute;
@@ -132,19 +130,6 @@ img {
   border-radius: 50%;
   z-index: 2;
 }
-
-/*
-.cv-entry::after {
-  content: "";
-  position: absolute;
-  left: -3px;
-  top: 12px;
-  width: 2px;
-  height: calc(100% + 6px);
-  background: #000;
-  z-index: 1;
-}
-*/
 
 .cv-entry:last-child::after {
   display: none;
@@ -170,8 +155,6 @@ img {
   color: #222;
 }
 
-/* LISTY */
-
 ul {
   list-style: none;
   padding-left: 0.8rem;
@@ -192,8 +175,6 @@ ul li::before {
   left: -0.75rem;
 }
 
-/* RODO */
-
 .rodo .cv-entry-desc {
   font-size: 0.7rem;
   color: #555;
@@ -209,9 +190,8 @@ ul li::before {
 .cv-entry-heading {
   display: flex;
   justify-content: space-between;
+  gap: 12px;
 }
-
-/* toolbar dla github pages */
 
 .toolbar {
   position: sticky;
@@ -233,250 +213,64 @@ ul li::before {
   cursor: pointer;
 }
 
-/* DRUK */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+/* TELEFON / MAŁE EKRANY */
 
-* {
-  box-sizing: border-box;
-  margin: 0;
-}
-
-html {
-  font-family: 'Inter', sans-serif;
-  font-size: 15px;
-  line-height: 1.35;
-  background: white;
-  color: #111;
-}
-
-body {
-  margin: 0;
-  padding: 0;
-}
-
-strong {
-  font-weight: 600;
-}
-
-img {
-  max-width: 100%;
-  height: auto;
-  display: block;
-}
-
-#a4 {
-  width: 21cm;
-  padding: 0.9cm;
-  margin: auto;
-}
-
-/* HEADER */
-
-#header {
-  display: flex;
-  gap: 1rem;
-  align-items: flex-start;
-}
-
-.header-text {
-  flex: 1;
-}
-
-.photo {
-  width: 120px;
-  height: 160px;
-  background: #e6e6e6;
-  border-radius: 4px;
-  overflow: hidden;
-  flex-shrink: 0;
-}
-
-.photo img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-#title {
-  font-size: 2.4rem;
-  font-weight: 700;
-  letter-spacing: 0.5px;
-  line-height: 1;
-  transform: translateY(-2px);
-}
-
-#subtitle {
-  margin-top: 0.25rem;
-  font-size: 0.95rem;
-  max-width: 520px;
-}
-
-.info {
-  font-size: 0.9rem;
-  display: flex;
-}
-
-.contact-info {
-  margin-top: 0.2rem;
-  gap: 1.5rem;
-}
-
-.description-info {
-  margin-top: 0.6rem;
-  max-width: 600px;
-  text-align: justify;
-}
-
-/* SEKCJE */
-
-.section-head {
-  display: inline-block;
-  border: 2px solid black;
-  border-radius: 30px;
-  padding: 0.2rem 0.8rem;
-  font-size: 0.85rem;
-  font-weight: 700;
-  margin-top: 0.9rem;
-  margin-bottom: 0.3rem;
-}
-
-/* ENTRY */
-
-.cv-entry {
-  position: relative;
-  margin-left: 14px;
-  padding-left: 16px;
-  margin-top: 0.5rem;
-  break-inside: avoid;
-  page-break-inside: avoid;
-}
-
-.section-head + .cv-entry {
-  margin-top: 0.2rem;
-}
-
-/* timeline */
-
-.cv-entry::before {
-  content: "";
-  position: absolute;
-  left: -2px;
-  top: 8px;
-  width: 5px;
-  height: 5px;
-  background: #000;
-  border-radius: 50%;
-  z-index: 2;
-}
-
-/*
-.cv-entry::after {
-  content: "";
-  position: absolute;
-  left: -3px;
-  top: 12px;
-  width: 2px;
-  height: calc(100% + 6px);
-  background: #000;
-  z-index: 1;
-}
-*/
-
-.cv-entry:last-child::after {
-  display: none;
-}
-
-.cv-entry-heading {
-  font-size: 1rem;
-  font-weight: 600;
-}
-
-.cv-entry-heading em {
-  font-style: normal;
-  font-weight: 500;
-}
-
-.cv-entry-byline {
-  font-size: 0.85rem;
-  margin-bottom: 0.15rem;
-}
-
-.cv-entry-desc {
-  font-size: 0.9rem;
-  color: #222;
-}
-
-/* LISTY */
-
-ul {
-  list-style: none;
-  padding-left: 0.8rem;
-}
-
-ul li {
-  margin-top: 0.25rem;
-  position: relative;
-}
-
-ul li:first-child {
-  margin-top: 0.2rem;
-}
-
-ul li::before {
-  content: "•";
-  position: absolute;
-  left: -0.75rem;
-}
-
-/* RODO */
-
-.rodo .cv-entry-desc {
-  font-size: 0.7rem;
-  color: #555;
-}
-
-.rodo {
-  margin-top: 0.7rem;
-  max-width: 600px;
-  text-align: justify;
-}
-
-.cv-entry-byline,
-.cv-entry-heading {
-  display: flex;
-  justify-content: space-between;
-}
-
-/* toolbar dla github pages */
-
-.toolbar {
-  position: sticky;
-  top: 0;
-  z-index: 1000;
-  display: flex;
-  gap: 8px;
-  padding: 12px;
-  background: #fff;
-  border-bottom: 1px solid #ddd;
-}
-
-.toolbar button {
-  padding: 10px 14px;
-  font-size: 16px;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  background: #fff;
-  cursor: pointer;
-}
-
-/* DRUK */
-
-@media print {
-  @page {
-    size: A4;
-    margin: 24mm 12mm 16mm 12mm;
+@media screen and (max-width: 768px) {
+  html {
+    font-size: 14px;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
   }
 
+  #a4 {
+    width: 100%;
+    padding: 16px;
+    margin: 0;
+  }
+
+  #header {
+    gap: 0.8rem;
+  }
+
+  .photo {
+    width: 96px;
+    height: 128px;
+  }
+
+  #title {
+    font-size: 1.8rem;
+  }
+
+  #subtitle {
+    font-size: 0.9rem;
+  }
+
+  .info,
+  .contact-info,
+  .cv-entry-byline,
+  .cv-entry-heading {
+    flex-wrap: wrap;
+  }
+
+  .cv-entry-heading,
+  .cv-entry-byline {
+    display: block;
+  }
+
+  .toolbar button {
+    font-size: 14px;
+    padding: 9px 12px;
+  }
+}
+
+/* DRUK */
+
+@page {
+  size: A4;
+  margin: 18mm 14mm 18mm 14mm;
+}
+
+@media print {
   .no-print,
   .toolbar {
     display: none !important;
@@ -487,21 +281,30 @@ ul li::before {
     margin: 0;
     padding: 0;
     background: white;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  html {
+    font-size: 15px;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
   }
 
   #a4 {
     width: auto;
+    max-width: none;
     margin: 0;
     padding: 0;
   }
 
-  .section-start,
   #header,
   .section-head,
   .cv-entry,
   .rodo,
   ul,
-  li {
+  li,
+  .section-start {
     break-inside: avoid;
     page-break-inside: avoid;
   }
