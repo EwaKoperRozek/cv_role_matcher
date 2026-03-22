@@ -146,12 +146,12 @@ function getProfileFile() {
 
 function getSectionKey(section) {
 	if (typeof section === "string") return section;
-	return section?.key || section?.id || "";
+	return (section && (section.key || section.id)) || "";
 }
 
-function getSectionOrder(section, fallbackIndex = 0) {
+function getSectionOrder(section, fallbackIndex) {
 	if (typeof section === "string") return fallbackIndex + 1;
-	if (typeof section?.order === "number") return section.order;
+	if (section && typeof section.order === "number") return section.order;
 	return fallbackIndex + 1;
 }
 
@@ -168,7 +168,7 @@ function stripHtml(html) {
 }
 
 function getValueByPath(obj, path) {
-	return path.split('.').reduce((acc, key) => {
+	return path.split('.').reduce(function(acc, key) {
 		if (acc === undefined || acc === null) return '';
 		return acc[key];
 	}, obj);
@@ -193,16 +193,17 @@ function joinDescriptionInline(value) {
 	return value;
 }
 
-function slugPart(value, fallback = "") {
-	return String(value || fallback)
+function slugPart(value, fallback) {
+	return String(value || fallback || "")
 		.trim()
 		.toLowerCase()
 		.replace(/[\/\\:*?"<>|]/g, "")
 		.replace(/\s+/g, "-");
 }
 
-function firstNonEmpty(...values) {
-	for (const value of values) {
+function firstNonEmpty() {
+	for (let i = 0; i < arguments.length; i++) {
+		const value = arguments[i];
 		if (typeof value === "string" && value.trim()) {
 			return value.trim();
 		}
@@ -210,37 +211,36 @@ function firstNonEmpty(...values) {
 	return "";
 }
 
-function resolveProfileData(data) {
-	if (!data || typeof data !== "object") return {};
-	return data.cv || data.profile || data.resume || data;
-}
-
 function buildPdfFileName(data) {
 	const fullName = firstNonEmpty(
-		[data?.name, data?.surname].filter(Boolean).join(" "),
-		data?.full_name,
+		[data && data.name, data && data.surname].filter(Boolean).join(" "),
+		data && data.full_name,
 		"imie i nazwisko"
 	);
 
 	const jobTitle = firstNonEmpty(
-		data?.job_title,
-		data?.meta?.job_title,
-		data?.target_job_title,
-		data?.jobTitle,
-		data?.meta?.jobTitle,
+		data && data.job_title,
+		data && data.target_job_title,
+		data && data.jobTitle,
+		data && data.meta && data.meta.job_title,
+		data && data.meta && data.meta.jobTitle,
 		"job-title"
 	);
 
 	const company = firstNonEmpty(
-		data?.company,
-		data?.meta?.company,
-		data?.target_company,
-		data?.company_name,
-		data?.meta?.company_name,
+		data && data.company,
+		data && data.target_company,
+		data && data.company_name,
+		data && data.meta && data.meta.company,
+		data && data.meta && data.meta.company_name,
 		"company"
 	);
 
-	return `${slugPart(fullName, "imie-i-nazwisko")}-${slugPart(jobTitle, "job-title")}-${slugPart(company, "company")}`;
+	return (
+		slugPart(fullName, "imie-i-nazwisko") + "-" +
+		slugPart(jobTitle, "job-title") + "-" +
+		slugPart(company, "company")
+	);
 }
 
 ////////////////////////
@@ -250,14 +250,25 @@ function buildPdfFileName(data) {
 function buildSectionList() {
 	if (Array.isArray(profile.sections) && profile.sections.length > 0) {
 		return profile.sections
-			.map((section, index) => ({
-				...((typeof section === "object" && section) ? section : { key: section }),
-				_resolvedKey: getSectionKey(section),
-				_resolvedOrder: getSectionOrder(section, index)
-			}))
-			.filter(section => section.visible !== false && section._resolvedKey)
-			.sort((a, b) => a._resolvedOrder - b._resolvedOrder)
-			.map(section => `./content/${section._resolvedKey}.html`);
+			.map(function(section, index) {
+				return Object.assign(
+					{},
+					(typeof section === "object" && section) ? section : { key: section },
+					{
+						_resolvedKey: getSectionKey(section),
+						_resolvedOrder: getSectionOrder(section, index)
+					}
+				);
+			})
+			.filter(function(section) {
+				return section.visible !== false && section._resolvedKey;
+			})
+			.sort(function(a, b) {
+				return a._resolvedOrder - b._resolvedOrder;
+			})
+			.map(function(section) {
+				return './content/' + section._resolvedKey + '.html';
+			});
 	}
 
 	return defaultSections;
@@ -296,12 +307,12 @@ async function signalRenderReady() {
 	const images = Array.from(document.querySelectorAll("#a4 img"));
 
 	await Promise.all(
-		images.map(img => {
+		images.map(function(img) {
 			if (img.complete) return Promise.resolve();
 
-			return new Promise(resolve => {
-				img.onload = () => resolve();
-				img.onerror = () => resolve();
+			return new Promise(function(resolve) {
+				img.onload = function() { resolve(); };
+				img.onerror = function() { resolve(); };
 			});
 		})
 	);
@@ -341,7 +352,9 @@ function generateDescriptionList(arr) {
 	if (!arr) return "";
 
 	if (Array.isArray(arr)) {
-		return arr.map(item => `<li>${item}</li>`).join("");
+		return arr.map(function(item) {
+			return `<li>${item}</li>`;
+		}).join("");
 	}
 
 	return `<li>${arr}</li>`;
@@ -458,7 +471,7 @@ function renderEntrySectionParts(sectionId) {
 
 	return splitRenderedItems(
 		profile[config.dataKey],
-		item => renderEntry(item, config)
+		function(item) { return renderEntry(item, config); }
 	);
 }
 
@@ -502,7 +515,7 @@ function renderSpecialPlaceholder(path) {
 }
 
 function fillPlaceholders(html) {
-	return html.replace(/\{\{(.*?)\}\}/g, (match, rawPath) => {
+	return html.replace(/\{\{(.*?)\}\}/g, function(match, rawPath) {
 		const path = rawPath.trim();
 
 		const specialValue = renderSpecialPlaceholder(path);
@@ -564,7 +577,7 @@ async function loadResume() {
 }
 
 async function renderFromProfile(data) {
-	profile = resolveProfileData(data);
+	profile = data || {};
 	sectionList = buildSectionList();
 	clearResume();
 
@@ -582,7 +595,7 @@ function setupControls() {
 	const printBtn = document.getElementById("printBtn");
 
 	if (pasteBtn) {
-		pasteBtn.addEventListener("click", async () => {
+		pasteBtn.addEventListener("click", async function() {
 			try {
 				let text = "";
 
@@ -607,7 +620,7 @@ function setupControls() {
 	}
 
 	if (printBtn) {
-		printBtn.addEventListener("click", () => {
+		printBtn.addEventListener("click", function() {
 			document.title = buildPdfFileName(profile);
 			window.print();
 		});
