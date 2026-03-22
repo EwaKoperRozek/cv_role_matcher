@@ -155,10 +155,6 @@ function getSectionOrder(section, fallbackIndex = 0) {
 	return fallbackIndex + 1;
 }
 
-function getSectionPath(section) {
-	return `./content/${getSectionKey(section)}.html`;
-}
-
 function getSectionIdFromPath(path) {
 	return path.replace('./content/', '').replace('.html', '');
 }
@@ -195,6 +191,32 @@ function joinDescriptionInline(value) {
 	if (!value) return "";
 	if (Array.isArray(value)) return value.filter(Boolean).join(", ");
 	return value;
+}
+
+function slugPart(value, fallback = "") {
+	return String(value || fallback)
+		.trim()
+		.toLowerCase()
+		.replace(/[\/\\:*?"<>|]/g, "")
+		.replace(/\s+/g, "-");
+}
+
+function buildPdfFileName(data) {
+	const fullName = [data?.name, data?.surname].filter(Boolean).join(" ");
+
+	const jobTitle =
+		data?.meta?.job_title ||
+		data?.job_title ||
+		data?.target_job_title ||
+		"job-title";
+
+	const company =
+		data?.meta?.company ||
+		data?.company ||
+		data?.target_company ||
+		"company";
+
+	return `${slugPart(fullName, "imie-i-nazwisko")}-${slugPart(jobTitle, "job-title")}-${slugPart(company, "company")}`;
 }
 
 ////////////////////////
@@ -487,15 +509,21 @@ async function getSectionHtml(sectionPath) {
 ////////////////////////
 
 function clearResume() {
-	const existing = document.getElementById("a4");
-	if (existing) existing.remove();
+	const root = document.getElementById("resume-root");
+	if (root) root.innerHTML = "";
 
 	window.__CV_RENDER_DONE__ = false;
 	document.body.removeAttribute("data-render-ready");
 }
 
 async function loadResume() {
-	document.body.appendChild(toFragment(fillPlaceholders(pageTemplate)));
+	const root = document.getElementById("resume-root");
+	if (!root) {
+		console.error("Brak #resume-root");
+		return;
+	}
+
+	root.appendChild(toFragment(fillPlaceholders(pageTemplate)));
 
 	for (const sectionPath of sectionList) {
 		if (!shouldRenderSection(sectionPath)) continue;
@@ -515,6 +543,9 @@ async function renderFromProfile(data) {
 	profile = data || {};
 	sectionList = buildSectionList();
 	clearResume();
+
+	document.title = buildPdfFileName(profile);
+
 	await loadResume();
 }
 
@@ -529,7 +560,19 @@ function setupControls() {
 	if (pasteBtn) {
 		pasteBtn.addEventListener("click", async () => {
 			try {
-				const text = await navigator.clipboard.readText();
+				let text = "";
+
+				if (navigator.clipboard && navigator.clipboard.readText) {
+					text = await navigator.clipboard.readText();
+				} else {
+					text = prompt("Wklej JSON tutaj:");
+				}
+
+				if (!text) {
+					alert("Brak JSON do wklejenia.");
+					return;
+				}
+
 				const data = JSON.parse(text);
 				await renderFromProfile(data);
 			} catch (err) {
@@ -541,6 +584,7 @@ function setupControls() {
 
 	if (printBtn) {
 		printBtn.addEventListener("click", () => {
+			document.title = buildPdfFileName(profile);
 			window.print();
 		});
 	}
@@ -562,4 +606,4 @@ async function init() {
 	}
 }
 
-init();
+document.addEventListener("DOMContentLoaded", init);
