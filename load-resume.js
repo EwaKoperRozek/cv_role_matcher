@@ -155,6 +155,10 @@ if (typeof section?.order === "number") return section.order;
 return fallbackIndex + 1;
 }
 
+function getSectionPath(section) {
+	return `./content/${getSectionKey(section)}.html`;
+}
+
 function getSectionIdFromPath(path) {
 return path.replace('./content/', '').replace('.html', '');
 }
@@ -194,29 +198,29 @@ return value;
 }
 
 function slugPart(value, fallback = "") {
-return String(value || fallback)
-.trim()
-.toLowerCase()
-.replace(/[\/\\:*?"<>|]/g, "")
-.replace(/\s+/g, "-");
+	return String(value || fallback)
+		.trim()
+		.toLowerCase()
+		.replace(/[\/\\:*?"<>|]/g, "")
+		.replace(/\s+/g, "-");
 }
 
 function buildPdfFileName(data) {
-const fullName = [data?.name, data?.surname].filter(Boolean).join(" ");
+	const fullName = [data?.name, data?.surname].filter(Boolean).join(" ");
 
-const jobTitle =
-data?.meta?.job_title ||
-data?.job_title ||
-data?.target_job_title ||
-"job-title";
+	const jobTitle =
+		data?.meta?.job_title ||
+		data?.job_title ||
+		data?.target_job_title ||
+		"job-title";
 
-const company =
-data?.meta?.company ||
-data?.company ||
-data?.target_company ||
-"company";
+	const company =
+		data?.meta?.company ||
+		data?.company ||
+		data?.target_company ||
+		"company";
 
-return `${slugPart(fullName, "imie-i-nazwisko")}-${slugPart(jobTitle, "job-title")}-${slugPart(company, "company")}`;
+	return `${slugPart(fullName, "imie-i-nazwisko")}-${slugPart(jobTitle, "job-title")}-${slugPart(company, "company")}`;
 }
 
 ////////////////////////
@@ -509,21 +513,24 @@ return await res.text();
 ////////////////////////
 
 function clearResume() {
-const root = document.getElementById("resume-root");
-if (root) root.innerHTML = "";
+	const existing = document.getElementById("a4");
+	if (existing) existing.remove();
+	const root = document.getElementById("resume-root");
+	if (root) root.innerHTML = "";
 
 window.__CV_RENDER_DONE__ = false;
 document.body.removeAttribute("data-render-ready");
 }
 
 async function loadResume() {
-const root = document.getElementById("resume-root");
-if (!root) {
-console.error("Brak #resume-root");
-return;
-}
+	document.body.appendChild(toFragment(fillPlaceholders(pageTemplate)));
+	const root = document.getElementById("resume-root");
+	if (!root) {
+		console.error("Brak #resume-root");
+		return;
+	}
 
-root.appendChild(toFragment(fillPlaceholders(pageTemplate)));
+	root.appendChild(toFragment(fillPlaceholders(pageTemplate)));
 
 for (const sectionPath of sectionList) {
 if (!shouldRenderSection(sectionPath)) continue;
@@ -544,47 +551,9 @@ profile = data || {};
 sectionList = buildSectionList();
 clearResume();
 
-document.title = buildPdfFileName(profile);
+	document.title = buildPdfFileName(profile);
 
 await loadResume();
-}
-
-async function downloadPdfDirectly() {
-	const element = document.getElementById("a4");
-	if (!element) {
-		alert("Nie znaleziono CV do zapisania.");
-		return;
-	}
-
-	if (typeof html2pdf === "undefined") {
-		alert("Biblioteka html2pdf nie została załadowana.");
-		return;
-	}
-
-	await signalRenderReady();
-
-	const fileName = `${buildPdfFileName(profile)}.pdf`;
-
-	const opt = {
-		margin: 0,
-		filename: fileName,
-		image: { type: "jpeg", quality: 0.98 },
-		html2canvas: {
-			scale: 2,
-			useCORS: true,
-			scrollX: 0,
-			scrollY: 0,
-			backgroundColor: "#ffffff"
-		},
-		jsPDF: {
-			unit: "mm",
-			format: "a4",
-			orientation: "portrait"
-		},
-		pagebreak: { mode: ["css", "legacy"] }
-	};
-
-	await html2pdf().set(opt).from(element).save();
 }
 
 ////////////////////////
@@ -598,18 +567,19 @@ const printBtn = document.getElementById("printBtn");
 if (pasteBtn) {
 pasteBtn.addEventListener("click", async () => {
 try {
-let text = "";
+				const text = await navigator.clipboard.readText();
+				let text = "";
 
-if (navigator.clipboard && navigator.clipboard.readText) {
-text = await navigator.clipboard.readText();
-} else {
-text = prompt("Wklej JSON tutaj:");
-}
+				if (navigator.clipboard && navigator.clipboard.readText) {
+					text = await navigator.clipboard.readText();
+				} else {
+					text = prompt("Wklej JSON tutaj:");
+				}
 
-if (!text) {
-alert("Brak JSON do wklejenia.");
-return;
-}
+				if (!text) {
+					alert("Brak JSON do wklejenia.");
+					return;
+				}
 
 const data = JSON.parse(text);
 await renderFromProfile(data);
@@ -621,16 +591,9 @@ alert("Nie udało się wkleić poprawnego JSON.");
 }
 
 if (printBtn) {
-		printBtn.addEventListener("click", () => {
+printBtn.addEventListener("click", () => {
 			document.title = buildPdfFileName(profile);
-			window.print();
-		printBtn.addEventListener("click", async () => {
-			try {
-				await downloadPdfDirectly();
-			} catch (err) {
-				console.error("Błąd generowania PDF:", err);
-				alert("Nie udało się pobrać PDF.");
-			}
+window.print();
 });
 }
 }
@@ -651,4 +614,5 @@ console.error("Błąd ładowania profilu JSON:", err);
 }
 }
 
+init();
 document.addEventListener("DOMContentLoaded", init);
