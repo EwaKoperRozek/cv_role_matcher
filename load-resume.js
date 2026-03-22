@@ -217,7 +217,7 @@ function buildDocumentTitle() {
 	// const jobTitle = sanitizeFilePart(profile?.target?.job_title);
 	const company = sanitizeFilePart(profile?.target?.company);
 
-	return [firstName, lastName, jobTitle, company]
+	return [firstName, lastName, company]
 		.filter(Boolean)
 		.join("_");
 }
