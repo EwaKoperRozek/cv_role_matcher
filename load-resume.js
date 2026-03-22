@@ -533,6 +533,7 @@ async function renderFromProfile(data) {
 function setupControls() {
 	const pasteBtn = document.getElementById("pasteBtn");
 	const printBtn = document.getElementById("printBtn");
+	const downloadBtn = document.getElementById("downloadBtn");
 
 	if (pasteBtn) {
 		pasteBtn.addEventListener("click", async () => {
@@ -549,6 +550,14 @@ function setupControls() {
 
 	if (printBtn) {
 		printBtn.addEventListener("click", () => {
+			window.print();
+		});
+	}
+
+	// jeśli gdzieś w HTML został stary przycisk download,
+	// to też zamiast pobierania odpali drukowanie
+	if (downloadBtn) {
+		downloadBtn.addEventListener("click", () => {
 			window.print();
 		});
 	}
