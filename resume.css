@@ -1,0 +1,244 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+*{
+  box-sizing:border-box;
+  margin:0;
+}
+
+html{
+  font-family:'Inter';
+  font-size:15px;
+  line-height:1.35;
+  background:white;
+  color:#111;
+}
+
+#a4{
+  width:21cm;
+  padding:0.9cm;
+  margin:auto;
+}
+
+strong{
+  font-weight:600;
+}
+
+/* HEADER */
+
+#header{
+  display:flex;
+  gap:1rem;
+  align-items:flex-start;
+}
+
+.header-text{
+  flex:1;
+}
+
+/* placeholder na zdjęcie */
+
+.photo{
+  width:120px;
+  height:160px;
+  background:#e6e6e6;
+  border-radius:4px;
+  overflow:hidden;
+  flex-shrink:0;
+}
+
+.photo img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  display:block;
+}
+
+/* tekst headera */
+
+#title{
+  font-size:2.4rem;
+  font-weight:700;
+  letter-spacing:0.5px;
+  line-height: 1;
+  transform: translateY(-2px);
+}
+
+#subtitle{
+  margin-top:0.25rem;
+  font-size:0.95rem;
+  max-width:520px;
+}
+
+.info{
+  font-size:0.9rem;
+  display:flex;
+}
+
+.contact-info{
+  margin-top:0.2rem;
+  gap:1.5rem;
+}
+
+.description-info{
+  margin-top:0.6rem;
+  max-width:600px;
+  text-align: justify;
+}
+
+/* SEKCJE */
+
+.section-head{
+  display:inline-block;
+  border:2px solid black;
+  border-radius:30px;
+  padding:0.2rem 0.8rem;
+  font-size:0.85rem;
+  font-weight:700;
+  margin-top:0.9rem;
+  margin-bottom:0.3rem;
+}
+
+/* ENTRY */
+
+.cv-entry{
+  position:relative;
+  margin-left:14px;
+  padding-left:16px;
+  margin-top:0.5rem;
+  break-inside:avoid;
+  page-break-inside:avoid;
+}
+
+.section-head + .cv-entry{
+  margin-top:0.2rem;
+}
+
+/* timeline */
+
+.cv-entry::before{
+  content:"";
+  position:absolute;
+  left:-2px;
+  top:8px;
+  width:5px;
+  height:5px;
+  background:#000;
+  border-radius:50%;
+  z-index:2;
+}
+
+/* .cv-entry::after{
+  content:"";
+  position:absolute;
+  left:-3px;
+  top:12px;
+  width:2px;
+  height:calc(100% + 6px);
+  background:#000;
+  z-index:1;
+} */
+
+.cv-entry:last-child::after{
+  display:none;
+}
+
+.cv-entry-heading{
+  font-size:1rem;
+  font-weight:600;
+}
+
+.cv-entry-heading em{
+  font-style:normal;
+  font-weight:500;
+}
+
+.cv-entry-byline{
+  font-size:0.85rem;
+  margin-bottom:0.15rem;
+}
+
+.cv-entry-desc{
+  font-size:0.9rem;
+  color:#222;
+}
+
+/* LISTY */
+
+ul{
+  list-style:none;
+  padding-left:0.8rem;
+}
+
+ul li{
+  margin-top:0.25rem;
+  position:relative;
+}
+
+ul li:first-child{
+  margin-top:0.2rem;
+}
+
+ul li::before{
+  content:"•";
+  position:absolute;
+  left:-0.75rem;
+}
+
+/* RODO */
+
+.rodo .cv-entry-desc {
+  font-size:0.7rem;
+  color:#555;
+}
+
+.rodo {
+  margin-top:0.7rem;
+}
+
+.cv-entry-byline,
+.cv-entry-heading{
+  display:flex;
+  justify-content:space-between;
+}
+
+@media print {
+  @page {
+    size: A4;
+    margin: 24mm 12mm 16mm 12mm;
+  }
+
+  .section-start {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+  }
+/* 
+  #a4 {
+    width: auto;
+    margin: 0;
+    padding: 0;
+  } */
+
+  #header,
+  .section-head,
+  .cv-entry,
+  .rodo,
+  ul,
+  li {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .section-head {
+    margin-top: 0.8rem;
+    margin-bottom: 0.3rem;
+  }
+
+  .cv-entry {
+    margin-top: 0.45rem;
+  }
+}
