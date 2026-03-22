@@ -146,12 +146,12 @@ function getProfileFile() {
 
 function getSectionKey(section) {
 	if (typeof section === "string") return section;
-	return (section && (section.key || section.id)) || "";
+	return section?.key || section?.id || "";
 }
 
-function getSectionOrder(section, fallbackIndex) {
+function getSectionOrder(section, fallbackIndex = 0) {
 	if (typeof section === "string") return fallbackIndex + 1;
-	if (section && typeof section.order === "number") return section.order;
+	if (typeof section?.order === "number") return section.order;
 	return fallbackIndex + 1;
 }
 
@@ -168,7 +168,7 @@ function stripHtml(html) {
 }
 
 function getValueByPath(obj, path) {
-	return path.split('.').reduce(function(acc, key) {
+	return path.split('.').reduce((acc, key) => {
 		if (acc === undefined || acc === null) return '';
 		return acc[key];
 	}, obj);
@@ -193,54 +193,30 @@ function joinDescriptionInline(value) {
 	return value;
 }
 
-function slugPart(value, fallback) {
-	return String(value || fallback || "")
+function slugPart(value, fallback = "") {
+	return String(value || fallback)
 		.trim()
 		.toLowerCase()
 		.replace(/[\/\\:*?"<>|]/g, "")
 		.replace(/\s+/g, "-");
 }
 
-function firstNonEmpty() {
-	for (let i = 0; i < arguments.length; i++) {
-		const value = arguments[i];
-		if (typeof value === "string" && value.trim()) {
-			return value.trim();
-		}
-	}
-	return "";
-}
-
 function buildPdfFileName(data) {
-	const fullName = firstNonEmpty(
-		[data && data.name, data && data.surname].filter(Boolean).join(" "),
-		data && data.full_name,
-		"imie i nazwisko"
-	);
+	const fullName = [data?.name, data?.surname].filter(Boolean).join(" ");
 
-	const jobTitle = firstNonEmpty(
-		data && data.job_title,
-		data && data.target_job_title,
-		data && data.jobTitle,
-		data && data.meta && data.meta.job_title,
-		data && data.meta && data.meta.jobTitle,
-		"job-title"
-	);
+	const jobTitle =
+		data?.meta?.job_title ||
+		data?.job_title ||
+		data?.target_job_title ||
+		"job-title";
 
-	const company = firstNonEmpty(
-		data && data.company,
-		data && data.target_company,
-		data && data.company_name,
-		data && data.meta && data.meta.company,
-		data && data.meta && data.meta.company_name,
-		"company"
-	);
+	const company =
+		data?.meta?.company ||
+		data?.company ||
+		data?.target_company ||
+		"company";
 
-	return (
-		slugPart(fullName, "imie-i-nazwisko") + "-" +
-		slugPart(jobTitle, "job-title") + "-" +
-		slugPart(company, "company")
-	);
+	return `${slugPart(fullName, "imie-i-nazwisko")}-${slugPart(jobTitle, "job-title")}-${slugPart(company, "company")}`;
 }
 
 ////////////////////////
@@ -250,25 +226,14 @@ function buildPdfFileName(data) {
 function buildSectionList() {
 	if (Array.isArray(profile.sections) && profile.sections.length > 0) {
 		return profile.sections
-			.map(function(section, index) {
-				return Object.assign(
-					{},
-					(typeof section === "object" && section) ? section : { key: section },
-					{
-						_resolvedKey: getSectionKey(section),
-						_resolvedOrder: getSectionOrder(section, index)
-					}
-				);
-			})
-			.filter(function(section) {
-				return section.visible !== false && section._resolvedKey;
-			})
-			.sort(function(a, b) {
-				return a._resolvedOrder - b._resolvedOrder;
-			})
-			.map(function(section) {
-				return './content/' + section._resolvedKey + '.html';
-			});
+			.map((section, index) => ({
+				...((typeof section === "object" && section) ? section : { key: section }),
+				_resolvedKey: getSectionKey(section),
+				_resolvedOrder: getSectionOrder(section, index)
+			}))
+			.filter(section => section.visible !== false && section._resolvedKey)
+			.sort((a, b) => a._resolvedOrder - b._resolvedOrder)
+			.map(section => `./content/${section._resolvedKey}.html`);
 	}
 
 	return defaultSections;
@@ -307,12 +272,12 @@ async function signalRenderReady() {
 	const images = Array.from(document.querySelectorAll("#a4 img"));
 
 	await Promise.all(
-		images.map(function(img) {
+		images.map(img => {
 			if (img.complete) return Promise.resolve();
 
-			return new Promise(function(resolve) {
-				img.onload = function() { resolve(); };
-				img.onerror = function() { resolve(); };
+			return new Promise(resolve => {
+				img.onload = () => resolve();
+				img.onerror = () => resolve();
 			});
 		})
 	);
@@ -352,9 +317,7 @@ function generateDescriptionList(arr) {
 	if (!arr) return "";
 
 	if (Array.isArray(arr)) {
-		return arr.map(function(item) {
-			return `<li>${item}</li>`;
-		}).join("");
+		return arr.map(item => `<li>${item}</li>`).join("");
 	}
 
 	return `<li>${arr}</li>`;
@@ -406,50 +369,11 @@ function renderEntry(item, config) {
 }
 
 function renderSkill(skill) {
-	const desc = joinDescriptionInline(skill.description);
+const desc = joinDescriptionInline(skill.description);
 
-	return `
-	<div class="cv-entry">
-		<div class="cv-entry-heading">
-			<strong>${skill.name || ''}</strong>
-		</div>
-
-		<div class="cv-entry-desc">
-			${desc}
-		</div>
-	</div>
-	`;
-}
-
-function renderCertificate(cert) {
-	const desc = joinDescriptionInline(cert.description);
-
-	let html = `
-	<div class="cv-entry">
-		<div class="cv-entry-heading">
-			<div><strong>${cert.name || ''}</strong></div>
-			<div><em>${cert.date || ''}</em></div>
-		</div>
-	`;
-
-	if (cert.issuer) {
-		html += `
-		<div class="cv-entry-byline">
-			<div><strong>${cert.issuer}</strong></div>
-		</div>
-		`;
-	}
-
-	if (desc) {
-		html += `
-		<div class="cv-entry-desc">
-			${desc}
-		</div>
-		`;
-	}
-
-	html += `</div>`;
-	return html;
+@@ -414,238 +44,3 @@ function renderCertificate(cert) {
+html += `</div>`;
+return html;
 }
 
 function splitRenderedItems(items, renderFn) {
@@ -471,7 +395,7 @@ function renderEntrySectionParts(sectionId) {
 
 	return splitRenderedItems(
 		profile[config.dataKey],
-		function(item) { return renderEntry(item, config); }
+		item => renderEntry(item, config)
 	);
 }
 
@@ -515,7 +439,7 @@ function renderSpecialPlaceholder(path) {
 }
 
 function fillPlaceholders(html) {
-	return html.replace(/\{\{(.*?)\}\}/g, function(match, rawPath) {
+	return html.replace(/\{\{(.*?)\}\}/g, (match, rawPath) => {
 		const path = rawPath.trim();
 
 		const specialValue = renderSpecialPlaceholder(path);
@@ -586,6 +510,44 @@ async function renderFromProfile(data) {
 	await loadResume();
 }
 
+async function downloadPdfDirectly() {
+	const element = document.getElementById("a4");
+	if (!element) {
+		alert("Nie znaleziono CV do zapisania.");
+		return;
+	}
+
+	if (typeof html2pdf === "undefined") {
+		alert("Biblioteka html2pdf nie została załadowana.");
+		return;
+	}
+
+	await signalRenderReady();
+
+	const fileName = `${buildPdfFileName(profile)}.pdf`;
+
+	const opt = {
+		margin: 0,
+		filename: fileName,
+		image: { type: "jpeg", quality: 0.98 },
+		html2canvas: {
+			scale: 2,
+			useCORS: true,
+			scrollX: 0,
+			scrollY: 0,
+			backgroundColor: "#ffffff"
+		},
+		jsPDF: {
+			unit: "mm",
+			format: "a4",
+			orientation: "portrait"
+		},
+		pagebreak: { mode: ["css", "legacy"] }
+	};
+
+	await html2pdf().set(opt).from(element).save();
+}
+
 ////////////////////////
 // CONTROLS
 ////////////////////////
@@ -595,7 +557,7 @@ function setupControls() {
 	const printBtn = document.getElementById("printBtn");
 
 	if (pasteBtn) {
-		pasteBtn.addEventListener("click", async function() {
+		pasteBtn.addEventListener("click", async () => {
 			try {
 				let text = "";
 
@@ -620,9 +582,13 @@ function setupControls() {
 	}
 
 	if (printBtn) {
-		printBtn.addEventListener("click", function() {
-			document.title = buildPdfFileName(profile);
-			window.print();
+		printBtn.addEventListener("click", async () => {
+			try {
+				await downloadPdfDirectly();
+			} catch (err) {
+				console.error("Błąd generowania PDF:", err);
+				alert("Nie udało się pobrać PDF.");
+			}
 		});
 	}
 }
