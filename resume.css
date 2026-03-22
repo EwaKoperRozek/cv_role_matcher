@@ -18,6 +18,8 @@ html {
 body {
 	margin: 0;
 	padding: 0;
+	-webkit-text-size-adjust: 100%;
+	text-size-adjust: 100%;
 }
 
 strong {
@@ -88,6 +90,14 @@ img {
 	margin-top: 0.25rem;
 	font-size: 0.95rem;
 	max-width: 520px;
+}
+
+.info,
+.contact-info,
+.description-info,
+.description-info div,
+.cv-entry-desc {
+	font-size: inherit;
 }
 
 .info {
@@ -213,7 +223,7 @@ ul li::before {
 
 .rodo {
 	margin-top: 0.7rem;
-  padding-left:2em;
+	padding-left: 2em;
 }
 
 /* TOOLBAR */
@@ -239,99 +249,113 @@ ul li::before {
 	cursor: pointer;
 }
 
-/* RESPONSYWNOŚĆ MOBILE */
+/* RESPONSYWNOŚĆ MOBILE — TYLKO PODGLĄD EKRANU */
 
 @media screen and (max-width: 768px) {
 	html {
-		font-size: 14px;
+		font-size: 14px !important;
+		-webkit-text-size-adjust: 100%;
+		text-size-adjust: 100%;
+	}
+
+	body {
+		-webkit-text-size-adjust: 100%;
+		text-size-adjust: 100%;
 	}
 
 	#a4 {
-		width: 100%;
-		margin: 0;
-		padding: 16px;
-		border-radius: 0;
-		box-shadow: none;
+		width: 100% !important;
+		max-width: 100% !important;
+		margin: 0 !important;
+		padding: 16px !important;
+		border-radius: 0 !important;
+		box-shadow: none !important;
 	}
 
 	#header {
-		flex-direction: column;
-		align-items: center;
-		text-align: center;
+		flex-direction: column !important;
+		align-items: center !important;
+		text-align: center !important;
 	}
 
 	.photo {
-		width: 120px;
-		height: 160px;
-		margin-bottom: 0.5rem;
+		width: 120px !important;
+		height: 160px !important;
+		margin-bottom: 0.5rem !important;
 	}
 
 	.header-text {
-		width: 100%;
+		width: 100% !important;
 	}
 
 	#title {
-		font-size: 1.8rem;
-		line-height: 1.1;
-		transform: none;
+		font-size: 1.8rem !important;
+		line-height: 1.1 !important;
+		transform: none !important;
+		text-align: center !important;
 	}
 
-	.info {
-		font-size: 0.92rem;
-	}
-
-	.contact-info div,
+	.info,
+	.contact-info,
+	.description-info,
 	.description-info div {
-		width: 100%;
+		font-size: 0.92rem !important;
+		line-height: 1.4 !important;
+		width: 100% !important;
 	}
 
 	.contact-info {
-		margin-top: 0.5rem;
+		margin-top: 0.5rem !important;
+		text-align: center !important;
 	}
 
 	.description-info {
-		margin-top: 0.7rem;
-		max-width: 100%;
-		text-align: left;
+		margin-top: 0.7rem !important;
+		max-width: 100% !important;
+		text-align: left !important;
 	}
 
 	.section-head {
-		font-size: 0.82rem;
-		margin-top: 1rem;
+		font-size: 0.82rem !important;
+		margin-top: 1rem !important;
 	}
 
 	.cv-entry {
-		margin-left: 10px;
-		padding-left: 14px;
+		margin-left: 10px !important;
+		padding-left: 14px !important;
 	}
 
 	.cv-entry-heading,
 	.cv-entry-byline {
-		flex-direction: column;
-		gap: 0.15rem;
+		flex-direction: column !important;
+		gap: 0.15rem !important;
 	}
 
 	.cv-entry-heading em,
 	.cv-entry-byline em {
-		flex-shrink: 1;
+		flex-shrink: 1 !important;
 	}
 
 	.cv-entry-desc {
-		font-size: 0.92rem;
+		font-size: 0.92rem !important;
+	}
+
+	.rodo {
+		padding-left: 10px !important;
 	}
 
 	.toolbar {
-		padding: 10px;
+		padding: 10px !important;
 	}
 
 	.toolbar button {
-		flex: 1 1 100%;
-		width: 100%;
-		font-size: 15px;
+		flex: 1 1 100% !important;
+		width: 100% !important;
+		font-size: 15px !important;
 	}
 }
 
-/* DRUK */
+/* DRUK — ZAWSZE A4 */
 
 @page {
 	size: A4;
@@ -339,26 +363,120 @@ ul li::before {
 }
 
 @media print {
-	.no-print {
+	.no-print,
+	.toolbar {
 		display: none !important;
 	}
 
 	html,
 	body {
-		margin: 0;
-		padding: 0;
-		background: white;
-		font-size: 15px;
+		margin: 0 !important;
+		padding: 0 !important;
+		background: white !important;
+		font-size: 15px !important;
+		-webkit-print-color-adjust: exact;
+		print-color-adjust: exact;
+		-webkit-text-size-adjust: 100%;
+		text-size-adjust: 100%;
+	}
+
+	#resume-root {
+		width: auto !important;
 	}
 
 	#a4 {
-		width: auto;
-		min-height: auto;
-		margin: 0;
-		padding: 0;
-		background: white;
-		box-shadow: none;
-		border-radius: 0;
+		width: 186mm !important;
+		max-width: 186mm !important;
+		min-height: 273mm !important;
+		margin: 0 auto !important;
+		padding: 0 !important;
+		background: white !important;
+		box-shadow: none !important;
+		border-radius: 0 !important;
+	}
+
+	#header {
+		display: flex !important;
+		flex-direction: row !important;
+		align-items: flex-start !important;
+		text-align: left !important;
+		gap: 1rem !important;
+	}
+
+	.photo {
+		width: 120px !important;
+		height: 160px !important;
+		margin: 0 !important;
+	}
+
+	.header-text {
+		flex: 1 !important;
+		width: auto !important;
+		min-width: 0 !important;
+	}
+
+	#title {
+		font-size: 2.4rem !important;
+		line-height: 1 !important;
+		transform: translateY(-2px) !important;
+		text-align: left !important;
+	}
+
+	.info {
+		font-size: 0.9rem !important;
+		display: block !important;
+	}
+
+	.contact-info {
+		margin-top: 0.2rem !important;
+		text-align: left !important;
+	}
+
+	.description-info {
+		margin-top: 0.6rem !important;
+		max-width: 600px !important;
+		text-align: justify !important;
+	}
+
+	.section-head {
+		font-size: 0.85rem !important;
+		margin-top: 0.9rem !important;
+		margin-bottom: 0.3rem !important;
+	}
+
+	.cv-entry {
+		margin-left: 14px !important;
+		padding-left: 16px !important;
+		margin-top: 0.45rem !important;
+	}
+
+	.cv-entry-heading {
+		font-size: 1rem !important;
+		display: flex !important;
+		flex-direction: row !important;
+		justify-content: space-between !important;
+		gap: 1rem !important;
+	}
+
+	.cv-entry-byline {
+		font-size: 0.85rem !important;
+		display: flex !important;
+		flex-direction: row !important;
+		justify-content: space-between !important;
+		gap: 1rem !important;
+	}
+
+	.cv-entry-desc {
+		font-size: 0.9rem !important;
+	}
+
+	.rodo {
+		margin-top: 0.7rem !important;
+		padding-left: 2em !important;
+	}
+
+	.rodo .cv-entry-desc {
+		font-size: 0.7rem !important;
 	}
 
 	#header,
@@ -368,16 +486,7 @@ ul li::before {
 	ul,
 	li,
 	.section-start {
-		break-inside: avoid;
-		page-break-inside: avoid;
-	}
-
-	.section-head {
-		margin-top: 0.8rem;
-		margin-bottom: 0.3rem;
-	}
-
-	.cv-entry {
-		margin-top: 0.45rem;
+		break-inside: avoid !important;
+		page-break-inside: avoid !important;
 	}
 }
