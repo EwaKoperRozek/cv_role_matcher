@@ -189,11 +189,11 @@ ul li::before{
 .rodo .cv-entry-desc {
   font-size:0.7rem;
   color:#555;
-  padding-left:2.0rem;
 }
 
 .rodo {
   margin-top:0.7rem;
+    padding-left:2.0em;
 }
 
 .cv-entry-byline,
