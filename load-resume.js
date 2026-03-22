@@ -199,6 +199,29 @@ function joinDescriptionInline(value) {
 	return value;
 }
 
+function sanitizeFilePart(value) {
+	if (!value) return "";
+	return String(value)
+		.normalize("NFKD")
+		.replace(/[\u0300-\u036f]/g, "")
+		.trim()
+		.replace(/\s+/g, "_")
+		.replace(/[^\w.-]/g, "_")
+		.replace(/_+/g, "_")
+		.replace(/^_+|_+$/g, "");
+}
+
+function buildDocumentTitle() {
+	const firstName = sanitizeFilePart(profile.name);
+	const lastName = sanitizeFilePart(profile.surname);
+	const jobTitle = sanitizeFilePart(profile?.target?.job_title);
+	const company = sanitizeFilePart(profile?.target?.company);
+
+	return [firstName, lastName, jobTitle, company]
+		.filter(Boolean)
+		.join("_");
+}
+
 ////////////////////////
 // SECTION LIST
 ////////////////////////
@@ -522,6 +545,12 @@ async function loadResume() {
 async function renderFromProfile(data) {
 	profile = data || {};
 	sectionList = buildSectionList();
+
+	const newTitle = buildDocumentTitle();
+	if (newTitle) {
+		document.title = newTitle;
+	}
+
 	clearResume();
 	await loadResume();
 }
@@ -554,8 +583,6 @@ function setupControls() {
 		});
 	}
 
-	// jeśli gdzieś w HTML został stary przycisk download,
-	// to też zamiast pobierania odpali drukowanie
 	if (downloadBtn) {
 		downloadBtn.addEventListener("click", () => {
 			window.print();
