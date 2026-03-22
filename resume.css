@@ -242,3 +242,45 @@ ul li::before{
     margin-top: 0.45rem;
   }
 }
+
+/* add style for github pages creation */
+.toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  display: flex;
+  gap: 8px;
+  padding: 12px;
+  background: #fff;
+  border-bottom: 1px solid #ddd;
+}
+
+.toolbar button {
+  padding: 10px 14px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  background: #fff;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+@page {
+  size: A4;
+  margin: 0;
+}
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: white;
+  }
+}
