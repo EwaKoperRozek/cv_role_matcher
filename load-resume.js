@@ -214,7 +214,7 @@ function sanitizeFilePart(value) {
 function buildDocumentTitle() {
 	const firstName = sanitizeFilePart(profile.name);
 	const lastName = sanitizeFilePart(profile.surname);
-	// const jobTitle = sanitizeFilePart(profile?.target?.job_title);
+	const jobTitle = sanitizeFilePart(profile?.target?.job_title);
 	const company = sanitizeFilePart(profile?.target?.company);
 
 	return [firstName, lastName, company]
