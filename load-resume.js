@@ -155,6 +155,10 @@ function getSectionOrder(section, fallbackIndex = 0) {
 	return fallbackIndex + 1;
 }
 
+function getSectionPath(section) {
+	return `./content/${getSectionKey(section)}.html`;
+}
+
 function getSectionIdFromPath(path) {
 	return path.replace('./content/', '').replace('.html', '');
 }
@@ -189,34 +193,10 @@ function hasVisibleItems(dataArray) {
 
 function joinDescriptionInline(value) {
 	if (!value) return "";
-	if (Array.isArray(value)) return value.filter(Boolean).join(", ");
+	if (Array.isArray(value)) {
+		return value.filter(Boolean).join(", ");
+	}
 	return value;
-}
-
-function slugPart(value, fallback = "") {
-	return String(value || fallback)
-		.trim()
-		.toLowerCase()
-		.replace(/[\/\\:*?"<>|]/g, "")
-		.replace(/\s+/g, "-");
-}
-
-function buildPdfFileName(data) {
-	const fullName = [data?.name, data?.surname].filter(Boolean).join(" ");
-
-	const jobTitle =
-		data?.meta?.job_title ||
-		data?.job_title ||
-		data?.target_job_title ||
-		"job-title";
-
-	const company =
-		data?.meta?.company ||
-		data?.company ||
-		data?.target_company ||
-		"company";
-
-	return `${slugPart(fullName, "imie-i-nazwisko")}-${slugPart(jobTitle, "job-title")}-${slugPart(company, "company")}`;
 }
 
 ////////////////////////
@@ -317,7 +297,7 @@ function generateDescriptionList(arr) {
 	if (!arr) return "";
 
 	if (Array.isArray(arr)) {
-		return arr.map(item => `<li>${item}</li>`).join("");
+		return arr.filter(Boolean).map(item => `<li>${item}</li>`).join("");
 	}
 
 	return `<li>${arr}</li>`;
@@ -371,17 +351,23 @@ function renderEntry(item, config) {
 function renderSkill(skill) {
 	const desc = joinDescriptionInline(skill.description);
 
-	return `
+	let html = `
 	<div class="cv-entry">
 		<div class="cv-entry-heading">
 			<strong>${skill.name || ''}</strong>
 		</div>
+	`;
 
+	if (desc) {
+		html += `
 		<div class="cv-entry-desc">
 			${desc}
 		</div>
-	</div>
-	`;
+		`;
+	}
+
+	html += `</div>`;
+	return html;
 }
 
 function renderCertificate(cert) {
@@ -509,21 +495,15 @@ async function getSectionHtml(sectionPath) {
 ////////////////////////
 
 function clearResume() {
-	const root = document.getElementById("resume-root");
-	if (root) root.innerHTML = "";
+	const existing = document.getElementById("a4");
+	if (existing) existing.remove();
 
 	window.__CV_RENDER_DONE__ = false;
 	document.body.removeAttribute("data-render-ready");
 }
 
 async function loadResume() {
-	const root = document.getElementById("resume-root");
-	if (!root) {
-		console.error("Brak #resume-root");
-		return;
-	}
-
-	root.appendChild(toFragment(fillPlaceholders(pageTemplate)));
+	document.body.appendChild(toFragment(fillPlaceholders(pageTemplate)));
 
 	for (const sectionPath of sectionList) {
 		if (!shouldRenderSection(sectionPath)) continue;
@@ -543,9 +523,6 @@ async function renderFromProfile(data) {
 	profile = data || {};
 	sectionList = buildSectionList();
 	clearResume();
-
-	document.title = buildPdfFileName(profile);
-
 	await loadResume();
 }
 
@@ -560,19 +537,7 @@ function setupControls() {
 	if (pasteBtn) {
 		pasteBtn.addEventListener("click", async () => {
 			try {
-				let text = "";
-
-				if (navigator.clipboard && navigator.clipboard.readText) {
-					text = await navigator.clipboard.readText();
-				} else {
-					text = prompt("Wklej JSON tutaj:");
-				}
-
-				if (!text) {
-					alert("Brak JSON do wklejenia.");
-					return;
-				}
-
+				const text = await navigator.clipboard.readText();
 				const data = JSON.parse(text);
 				await renderFromProfile(data);
 			} catch (err) {
@@ -584,7 +549,6 @@ function setupControls() {
 
 	if (printBtn) {
 		printBtn.addEventListener("click", () => {
-			document.title = buildPdfFileName(profile);
 			window.print();
 		});
 	}
@@ -606,4 +570,4 @@ async function init() {
 	}
 }
 
-document.addEventListener("DOMContentLoaded", init);
+init();
