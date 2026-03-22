@@ -483,8 +483,16 @@ async function getSectionHtml(sectionPath) {
 }
 
 ////////////////////////
-// LOAD RESUME
+// LOAD / RENDER
 ////////////////////////
+
+function clearResume() {
+	const existing = document.getElementById("a4");
+	if (existing) existing.remove();
+
+	window.__CV_RENDER_DONE__ = false;
+	document.body.removeAttribute("data-render-ready");
+}
 
 async function loadResume() {
 	document.body.appendChild(toFragment(fillPlaceholders(pageTemplate)));
@@ -503,16 +511,52 @@ async function loadResume() {
 	await signalRenderReady();
 }
 
+async function renderFromProfile(data) {
+	profile = data || {};
+	sectionList = buildSectionList();
+	clearResume();
+	await loadResume();
+}
+
+////////////////////////
+// CONTROLS
+////////////////////////
+
+function setupControls() {
+	const pasteBtn = document.getElementById("pasteBtn");
+	const printBtn = document.getElementById("printBtn");
+
+	if (pasteBtn) {
+		pasteBtn.addEventListener("click", async () => {
+			try {
+				const text = await navigator.clipboard.readText();
+				const data = JSON.parse(text);
+				await renderFromProfile(data);
+			} catch (err) {
+				console.error("Błąd wklejania JSON:", err);
+				alert("Nie udało się wkleić poprawnego JSON.");
+			}
+		});
+	}
+
+	if (printBtn) {
+		printBtn.addEventListener("click", () => {
+			window.print();
+		});
+	}
+}
+
 ////////////////////////
 // INIT
 ////////////////////////
 
 async function init() {
+	setupControls();
+
 	try {
 		const res = await fetch(getProfileFile());
-		profile = await res.json();
-		sectionList = buildSectionList();
-		await loadResume();
+		const data = await res.json();
+		await renderFromProfile(data);
 	} catch (err) {
 		console.error("Błąd ładowania profilu JSON:", err);
 	}
