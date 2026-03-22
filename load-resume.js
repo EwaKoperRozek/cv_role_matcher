@@ -3,73 +3,394 @@ if (window.location.href.includes('pdf')) {
 	document.documentElement.classList.remove('paper');
 }
 
-let sectionList = [];
 let profile = {};
+let sectionList = [];
+
+////////////////////////
+// PAGE TEMPLATE
+////////////////////////
 
 const pageTemplate = `
-	<div id="a4">
-		<div id="header">
-			<div class="photo">
-				<img src="{{photo}}" alt="{{name}} {{surname}}">
+<div id="a4">
+	<div id="header">
+		{{photo_block}}
+
+		<div class="header-text">
+			<div id="title">
+				<span>{{name}}</span> {{surname}}
 			</div>
 
-			<div class="header-text">
-				<div id="title"><span>{{name}}</span> {{surname}}</div>
-				<div id="subtitle">{{subtitle}}</div>
+			<div class="info contact-info">
+				<div>{{contact_line}}</div>
+			</div>
 
-				<div class="info contact-info">
-					<div>{{city}}</div>
-					<div>{{email}}</div>
-					<div>{{phone}}</div>
-				</div>
-
-				<div class="info description-info">
-					<div>{{description}}</div>
-				</div>
+			<div class="info description-info">
+				<div>{{description}}</div>
 			</div>
 		</div>
-
-		<div id="content"></div>
 	</div>
+
+	<div id="col-layout">
+		<div id="first-col"></div>
+		<div id="second-col"></div>
+	</div>
+</div>
 `;
 
-function safe(val) {
-	return val || '';
+////////////////////////
+// SECTION CONFIG
+////////////////////////
+
+const sectionTemplates = {
+	education: `
+	<div class="timeline-section">
+		<div class="section-start">
+			<div class="section-head first">{{educationtitle}}</div>
+			{{education_first_entry}}
+		</div>
+		{{education_other_entries}}
+	</div>
+	`,
+
+	experience: `
+	<div class="timeline-section">
+		<div class="section-start">
+			<div class="section-head first">{{experiencetitle}}</div>
+			{{experience_first_entry}}
+		</div>
+		{{experience_other_entries}}
+	</div>
+	`,
+
+	projects: `
+	<div>
+		<div class="section-start">
+			<div class="section-head">{{projectstitle}}</div>
+			{{projects_first_entry}}
+		</div>
+		{{projects_other_entries}}
+	</div>
+	`,
+
+	skills: `
+	<div class="less-space">
+		<div class="section-start">
+			<div class="section-head">{{skillstitle}}</div>
+			{{skills_first_entry}}
+		</div>
+		{{skills_other_entries}}
+	</div>
+	`,
+
+	certificates: `
+	<div>
+		<div class="section-start">
+			<div class="section-head">{{certificatestitle}}</div>
+			{{certificates_first_entry}}
+		</div>
+		{{certificates_other_entries}}
+	</div>
+	`,
+
+	rodo: `
+	<div class="rodo">
+		<div class="cv-entry-desc">
+			{{rodo}}
+		</div>
+	</div>
+	`
+};
+
+const entryConfigs = {
+	experience: {
+		dataKey: "experience",
+		title: "position",
+		date: "date",
+		subtitle: "company",
+		subtitle2: "location",
+		description: "description"
+	},
+	projects: {
+		dataKey: "projects",
+		title: "name",
+		date: "date",
+		description: "description"
+	},
+	education: {
+		dataKey: "education",
+		title: "degree",
+		date: "date",
+		subtitle: "school",
+		description: "coursework",
+		nojustify: true
+	}
+};
+
+const defaultSections = [
+	'./content/experience.html',
+	'./content/projects.html',
+	'./content/education.html',
+	'./content/skills.html',
+	'./content/certificates.html',
+	'./content/rodo.html'
+];
+
+////////////////////////
+// BASIC HELPERS
+////////////////////////
+
+function getProfileFile() {
+	const params = new URLSearchParams(window.location.search);
+	return params.get("profile") || "profile.json";
 }
 
-function joinDescriptionInline(description) {
-	if (!description) return '';
+function getSectionKey(section) {
+	if (typeof section === "string") return section;
+	return section?.key || section?.id || "";
+}
 
-	if (Array.isArray(description)) {
-		return description.filter(Boolean).join(' ');
+function getSectionOrder(section, fallbackIndex = 0) {
+	if (typeof section === "string") return fallbackIndex + 1;
+	if (typeof section?.order === "number") return section.order;
+	return fallbackIndex + 1;
+}
+
+function getSectionPath(section) {
+	return `./content/${getSectionKey(section)}.html`;
+}
+
+function getSectionIdFromPath(path) {
+	return path.replace('./content/', '').replace('.html', '');
+}
+
+function toFragment(html) {
+	return document.createRange().createContextualFragment(html);
+}
+
+function stripHtml(html) {
+	return html.replace(/<[^>]*>/g, '').trim();
+}
+
+function getValueByPath(obj, path) {
+	return path.split('.').reduce((acc, key) => {
+		if (acc === undefined || acc === null) return '';
+		return acc[key];
+	}, obj);
+}
+
+function isVisible(item) {
+	return item && item.visible !== false;
+}
+
+function filterVisibleItems(dataArray) {
+	if (!Array.isArray(dataArray)) return [];
+	return dataArray.filter(isVisible);
+}
+
+function hasVisibleItems(dataArray) {
+	return filterVisibleItems(dataArray).length > 0;
+}
+
+function joinDescriptionInline(value) {
+	if (!value) return "";
+	if (Array.isArray(value)) {
+		return value.filter(Boolean).join(", ");
+	}
+	return value;
+}
+
+function sanitizeFilePart(value) {
+	if (!value) return "";
+	return String(value)
+		.normalize("NFKD")
+		.replace(/[\u0300-\u036f]/g, "")
+		.trim()
+		.replace(/\s+/g, "_")
+		.replace(/[^\w.-]/g, "_")
+		.replace(/_+/g, "_")
+		.replace(/^_+|_+$/g, "");
+}
+
+function buildDocumentTitle() {
+	const firstName = sanitizeFilePart(profile.name);
+	const lastName = sanitizeFilePart(profile.surname);
+	// const jobTitle = sanitizeFilePart(profile?.target?.job_title);
+	const company = sanitizeFilePart(profile?.target?.company);
+
+	return [firstName, lastName, jobTitle, company]
+		.filter(Boolean)
+		.join("_");
+}
+
+////////////////////////
+// SECTION LIST
+////////////////////////
+
+function buildSectionList() {
+	if (Array.isArray(profile.sections) && profile.sections.length > 0) {
+		return profile.sections
+			.map((section, index) => ({
+				...((typeof section === "object" && section) ? section : { key: section }),
+				_resolvedKey: getSectionKey(section),
+				_resolvedOrder: getSectionOrder(section, index)
+			}))
+			.filter(section => section.visible !== false && section._resolvedKey)
+			.sort((a, b) => a._resolvedOrder - b._resolvedOrder)
+			.map(section => `./content/${section._resolvedKey}.html`);
 	}
 
-	return description;
+	return defaultSections;
 }
 
-function renderList(items) {
-	if (!items || !items.length) return '';
+function shouldRenderSection(sectionPath) {
+	switch (sectionPath) {
+		case './content/experience.html':
+			return hasVisibleItems(profile.experience);
+		case './content/projects.html':
+			return hasVisibleItems(profile.projects);
+		case './content/education.html':
+			return hasVisibleItems(profile.education);
+		case './content/skills.html':
+			return hasVisibleItems(profile.skills);
+		case './content/certificates.html':
+			return hasVisibleItems(profile.certificates);
+		case './content/rodo.html':
+			return !!profile.rodo && (!profile.render || profile.render.show_rodo !== false);
+		default:
+			return true;
+	}
+}
+
+////////////////////////
+// RENDER READY
+////////////////////////
+
+async function signalRenderReady() {
+	if (document.fonts && document.fonts.ready) {
+		try {
+			await document.fonts.ready;
+		} catch (e) {}
+	}
+
+	const images = Array.from(document.querySelectorAll("#a4 img"));
+
+	await Promise.all(
+		images.map(img => {
+			if (img.complete) return Promise.resolve();
+
+			return new Promise(resolve => {
+				img.onload = () => resolve();
+				img.onerror = () => resolve();
+			});
+		})
+	);
+
+	window.__CV_RENDER_DONE__ = true;
+	document.body.setAttribute("data-render-ready", "true");
+	window.dispatchEvent(new Event("cv-render-ready"));
+}
+
+////////////////////////
+// SIMPLE RENDERERS
+////////////////////////
+
+function renderPhotoBlock() {
+	const showPhoto = !profile.render || profile.render.show_photo !== false;
+
+	if (!profile.photo || !showPhoto) return "";
 
 	return `
-		<ul>
-			${items.map(item => `<li>${item}</li>`).join('')}
-		</ul>
+	<div class="photo">
+		<img src="${profile.photo}" alt="${profile.name || ''} ${profile.surname || ''}">
+	</div>
 	`;
+}
+
+function renderContactLine() {
+	const parts = [];
+
+	if (profile.city) parts.push(profile.city);
+	if (profile.email) parts.push(profile.email);
+	if (profile.phone) parts.push(profile.phone);
+
+	return parts.join(" | ");
+}
+
+function generateDescriptionList(arr) {
+	if (!arr) return "";
+
+	if (Array.isArray(arr)) {
+		return arr.filter(Boolean).map(item => `<li>${item}</li>`).join("");
+	}
+
+	return `<li>${arr}</li>`;
+}
+
+////////////////////////
+// ENTRY RENDERERS
+////////////////////////
+
+function renderEntry(item, config) {
+	let html = `
+	<div class="cv-entry">
+		<div class="cv-entry-heading">
+			<div><strong>${item[config.title] || ''}</strong></div>
+			<div><em>${item[config.date] || ''}</em></div>
+		</div>
+	`;
+
+	if (config.subtitle || config.subtitle2) {
+		html += `<div class="cv-entry-byline">`;
+
+		if (config.subtitle) {
+			html += `<div><strong>${item[config.subtitle] || ''}</strong></div>`;
+		}
+
+		if (config.subtitle2) {
+			html += `<div><em>${item[config.subtitle2] || ''}</em></div>`;
+		}
+
+		html += `</div>`;
+	}
+
+	if (config.description) {
+		const value = item[config.description];
+
+		if (value && (Array.isArray(value) ? value.length > 0 : true)) {
+			html += `
+			<div class="cv-entry-desc">
+				<ul ${config.nojustify ? 'class="no-justify"' : ''}>
+					${generateDescriptionList(value)}
+				</ul>
+			</div>
+			`;
+		}
+	}
+
+	html += `</div>`;
+	return html;
 }
 
 function renderSkill(skill) {
 	const desc = joinDescriptionInline(skill.description);
 
-	return `
+	let html = `
 	<div class="cv-entry">
 		<div class="cv-entry-heading">
-			<strong>${safe(skill.name)}</strong>
+			<strong>${skill.name || ''}</strong>
 		</div>
+	`;
+
+	if (desc) {
+		html += `
 		<div class="cv-entry-desc">
 			${desc}
 		</div>
-	</div>
-	`;
+		`;
+	}
+
+	html += `</div>`;
+	return html;
 }
 
 function renderCertificate(cert) {
@@ -78,15 +399,15 @@ function renderCertificate(cert) {
 	let html = `
 	<div class="cv-entry">
 		<div class="cv-entry-heading">
-			<div><strong>${safe(cert.name)}</strong></div>
-			<div><em>${safe(cert.date)}</em></div>
+			<div><strong>${cert.name || ''}</strong></div>
+			<div><em>${cert.date || ''}</em></div>
 		</div>
 	`;
 
 	if (cert.issuer) {
 		html += `
 		<div class="cv-entry-byline">
-			<div><strong>${safe(cert.issuer)}</strong></div>
+			<div><strong>${cert.issuer}</strong></div>
 		</div>
 		`;
 	}
@@ -103,248 +424,186 @@ function renderCertificate(cert) {
 	return html;
 }
 
-function renderEducation(edu) {
-	const desc = joinDescriptionInline(edu.description);
+function splitRenderedItems(items, renderFn) {
+	const visibleItems = filterVisibleItems(items);
 
-	let html = `
-	<div class="cv-entry">
-		<div class="cv-entry-heading">
-			<div><strong>${safe(edu.degree)}</strong></div>
-			<div><em>${safe(edu.date)}</em></div>
-		</div>
-	`;
-
-	if (edu.school) {
-		html += `
-		<div class="cv-entry-byline">
-			<div>${safe(edu.school)}</div>
-		</div>
-		`;
+	if (!visibleItems.length) {
+		return { first: "", rest: "" };
 	}
 
-	if (desc) {
-		html += `
-		<div class="cv-entry-desc">
-			${desc}
-		</div>
-		`;
-	}
-
-	html += `</div>`;
-	return html;
-}
-
-function renderExperience(exp) {
-	const desc = joinDescriptionInline(exp.description);
-
-	let html = `
-	<div class="cv-entry">
-		<div class="cv-entry-heading">
-			<div><strong>${safe(exp.position)}</strong></div>
-			<div><em>${safe(exp.date)}</em></div>
-		</div>
-	`;
-
-	if (exp.company) {
-		html += `
-		<div class="cv-entry-byline">
-			<div>${safe(exp.company)}</div>
-		</div>
-		`;
-	}
-
-	if (desc) {
-		html += `
-		<div class="cv-entry-desc">
-			${desc}
-		</div>
-		`;
-	}
-
-	if (exp.list && exp.list.length) {
-		html += renderList(exp.list);
-	}
-
-	html += `</div>`;
-	return html;
-}
-
-function renderProject(project) {
-	const desc = joinDescriptionInline(project.description);
-
-	let html = `
-	<div class="cv-entry">
-		<div class="cv-entry-heading">
-			<div><strong>${safe(project.name)}</strong></div>
-			<div><em>${safe(project.date)}</em></div>
-		</div>
-	`;
-
-	if (project.subtitle) {
-		html += `
-		<div class="cv-entry-byline">
-			<div>${safe(project.subtitle)}</div>
-		</div>
-		`;
-	}
-
-	if (desc) {
-		html += `
-		<div class="cv-entry-desc">
-			${desc}
-		</div>
-		`;
-	}
-
-	if (project.list && project.list.length) {
-		html += renderList(project.list);
-	}
-
-	html += `</div>`;
-	return html;
-}
-
-function renderRodo(rodo) {
-	const desc = joinDescriptionInline(rodo.description || rodo.text || rodo);
-
-	return `
-	<div class="rodo">
-		<div class="cv-entry-desc">${desc}</div>
-	</div>
-	`;
-}
-
-function renderSection(sectionKey, sectionTitle, items) {
-	if (!items || !items.length) return '';
-
-	let entries = '';
-
-	switch (sectionKey) {
-		case 'skills':
-			entries = items.map(renderSkill).join('');
-			break;
-		case 'certificates':
-			entries = items.map(renderCertificate).join('');
-			break;
-		case 'education':
-			entries = items.map(renderEducation).join('');
-			break;
-		case 'experience':
-			entries = items.map(renderExperience).join('');
-			break;
-		case 'projects':
-			entries = items.map(renderProject).join('');
-			break;
-		case 'rodo':
-			entries = Array.isArray(items)
-				? items.map(renderRodo).join('')
-				: renderRodo(items);
-			break;
-		default:
-			return '';
-	}
-
-	return `
-		<div class="section-start">
-			<div class="section-head">${sectionTitle}</div>
-			${entries}
-		</div>
-	`;
-}
-
-function buildCV(data) {
-	profile = data || {};
-	sectionList = data.sections || [];
-
-	let html = pageTemplate
-		.replace('{{photo}}', safe(data.photo))
-		.replace('{{name}}', safe(data.name))
-		.replace('{{surname}}', safe(data.surname))
-		.replace('{{subtitle}}', safe(data.subtitle))
-		.replace('{{city}}', safe(data.city))
-		.replace('{{email}}', safe(data.email))
-		.replace('{{phone}}', safe(data.phone))
-		.replace('{{description}}', safe(data.description));
-
-	const content = sectionList.map(section => {
-		const titleKey = `${section}title`;
-		const sectionTitle = data[titleKey] || section;
-		const items = data[section];
-		return renderSection(section, sectionTitle, items);
-	}).join('');
-
-	html = html.replace('{{content}}', content);
-
-	document.getElementById('resume-root').innerHTML = html;
-}
-
-function normalizeFilePart(text) {
-	return (text || '')
-		.toString()
-		.trim()
-		.replace(/[\\/:"*?<>|]+/g, '')
-		.replace(/\s+/g, ' ');
-}
-
-function getPdfFileName() {
-	const fullName = normalizeFilePart(
-		`${safe(profile.name)} ${safe(profile.surname)}`
-	);
-
-	const company =
-		normalizeFilePart(profile.company) ||
-		normalizeFilePart(profile.companyName) ||
-		normalizeFilePart(profile.targetCompany) ||
-		normalizeFilePart(profile.nazwafirmy);
-
-	return [fullName, company].filter(Boolean).join('_') + '.pdf';
-}
-
-async function generatePDF() {
-	const element = document.getElementById('a4');
-	if (!element) return;
-
-	const fileName = getPdfFileName();
-
-	const opt = {
-		margin: 0,
-		filename: fileName,
-		image: { type: 'jpeg', quality: 0.98 },
-		html2canvas: {
-			scale: 2,
-			useCORS: true,
-			scrollX: 0,
-			scrollY: 0
-		},
-		jsPDF: {
-			unit: 'mm',
-			format: 'a4',
-			orientation: 'portrait'
-		},
-		pagebreak: {
-			mode: ['avoid-all', 'css', 'legacy']
-		}
+	return {
+		first: renderFn(visibleItems[0]),
+		rest: visibleItems.slice(1).map(renderFn).join("")
 	};
-
-	await html2pdf().set(opt).from(element).save();
 }
 
-document.getElementById('printBtn')?.addEventListener('click', async () => {
-	try {
-		await generatePDF();
-	} catch (err) {
-		console.error('Błąd generowania PDF:', err);
-		alert('Nie udało się wygenerować PDF.');
-	}
-});
+function renderEntrySectionParts(sectionId) {
+	const config = entryConfigs[sectionId];
+	if (!config) return { first: "", rest: "" };
 
-document.getElementById('pasteBtn')?.addEventListener('click', async () => {
-	try {
-		const text = await navigator.clipboard.readText();
-		const data = JSON.parse(text);
-		buildCV(data);
-	} catch (err) {
-		console.error('Błąd wklejania JSON:', err);
-		alert('Nie udało się wkleić poprawnego JSON.');
+	return splitRenderedItems(
+		profile[config.dataKey],
+		item => renderEntry(item, config)
+	);
+}
+
+function renderSkillSectionParts() {
+	return splitRenderedItems(profile.skills, renderSkill);
+}
+
+function renderCertificateSectionParts() {
+	return splitRenderedItems(profile.certificates, renderCertificate);
+}
+
+////////////////////////
+// PLACEHOLDERS
+////////////////////////
+
+function renderSpecialPlaceholder(path) {
+	if (path === "photo_block") return renderPhotoBlock();
+	if (path === "contact_line") return renderContactLine();
+
+	const firstMatch = path.match(/^(experience|projects|education|skills|certificates)_first_entry$/);
+	if (firstMatch) {
+		const sectionId = firstMatch[1];
+
+		if (sectionId === "skills") return renderSkillSectionParts().first;
+		if (sectionId === "certificates") return renderCertificateSectionParts().first;
+
+		return renderEntrySectionParts(sectionId).first;
 	}
-});
+
+	const otherMatch = path.match(/^(experience|projects|education|skills|certificates)_other_entries$/);
+	if (otherMatch) {
+		const sectionId = otherMatch[1];
+
+		if (sectionId === "skills") return renderSkillSectionParts().rest;
+		if (sectionId === "certificates") return renderCertificateSectionParts().rest;
+
+		return renderEntrySectionParts(sectionId).rest;
+	}
+
+	return null;
+}
+
+function fillPlaceholders(html) {
+	return html.replace(/\{\{(.*?)\}\}/g, (match, rawPath) => {
+		const path = rawPath.trim();
+
+		const specialValue = renderSpecialPlaceholder(path);
+		if (specialValue !== null) return specialValue;
+
+		const value = getValueByPath(profile, path);
+		return value === undefined || value === null ? '' : value;
+	});
+}
+
+////////////////////////
+// SECTION HTML
+////////////////////////
+
+async function getSectionHtml(sectionPath) {
+	const sectionId = getSectionIdFromPath(sectionPath);
+
+	if (sectionTemplates[sectionId]) {
+		return sectionTemplates[sectionId];
+	}
+
+	const res = await fetch(sectionPath);
+	return await res.text();
+}
+
+////////////////////////
+// LOAD / RENDER
+////////////////////////
+
+function clearResume() {
+	const existing = document.getElementById("a4");
+	if (existing) existing.remove();
+
+	window.__CV_RENDER_DONE__ = false;
+	document.body.removeAttribute("data-render-ready");
+}
+
+async function loadResume() {
+	document.body.appendChild(toFragment(fillPlaceholders(pageTemplate)));
+
+	for (const sectionPath of sectionList) {
+		if (!shouldRenderSection(sectionPath)) continue;
+
+		let sectionHtml = await getSectionHtml(sectionPath);
+		sectionHtml = fillPlaceholders(sectionHtml);
+
+		if (!stripHtml(sectionHtml)) continue;
+
+		document.getElementById("first-col").appendChild(toFragment(sectionHtml));
+	}
+
+	await signalRenderReady();
+}
+
+async function renderFromProfile(data) {
+	profile = data || {};
+	sectionList = buildSectionList();
+
+	const newTitle = buildDocumentTitle();
+	if (newTitle) {
+		document.title = newTitle;
+	}
+
+	clearResume();
+	await loadResume();
+}
+
+////////////////////////
+// CONTROLS
+////////////////////////
+
+function setupControls() {
+	const pasteBtn = document.getElementById("pasteBtn");
+	const printBtn = document.getElementById("printBtn");
+	const downloadBtn = document.getElementById("downloadBtn");
+
+	if (pasteBtn) {
+		pasteBtn.addEventListener("click", async () => {
+			try {
+				const text = await navigator.clipboard.readText();
+				const data = JSON.parse(text);
+				await renderFromProfile(data);
+			} catch (err) {
+				console.error("Błąd wklejania JSON:", err);
+				alert("Nie udało się wkleić poprawnego JSON.");
+			}
+		});
+	}
+
+	if (printBtn) {
+		printBtn.addEventListener("click", () => {
+			window.print();
+		});
+	}
+
+	if (downloadBtn) {
+		downloadBtn.addEventListener("click", () => {
+			window.print();
+		});
+	}
+}
+
+////////////////////////
+// INIT
+////////////////////////
+
+async function init() {
+	setupControls();
+
+	try {
+		const res = await fetch(getProfileFile());
+		const data = await res.json();
+		await renderFromProfile(data);
+	} catch (err) {
+		console.error("Błąd ładowania profilu JSON:", err);
+	}
+}
+
+init();
