@@ -203,6 +203,7 @@ ul li::before {
   margin-top: 0.7rem;
   max-width: 600px;
   text-align: justify;
+  margin-left: 1.0em;
 }
 
 .cv-entry-byline,
