@@ -549,44 +549,6 @@ async function renderFromProfile(data) {
 	await loadResume();
 }
 
-async function downloadPdfDirectly() {
-	const element = document.getElementById("a4");
-	if (!element) {
-		alert("Nie znaleziono CV do zapisania.");
-		return;
-	}
-
-	if (typeof html2pdf === "undefined") {
-		alert("Biblioteka html2pdf nie została załadowana.");
-		return;
-	}
-
-	await signalRenderReady();
-
-	const fileName = `${buildPdfFileName(profile)}.pdf`;
-
-	const opt = {
-		margin: 0,
-		filename: fileName,
-		image: { type: "jpeg", quality: 0.98 },
-		html2canvas: {
-			scale: 2,
-			useCORS: true,
-			scrollX: 0,
-			scrollY: 0,
-			backgroundColor: "#ffffff"
-		},
-		jsPDF: {
-			unit: "mm",
-			format: "a4",
-			orientation: "portrait"
-		},
-		pagebreak: { mode: ["css", "legacy"] }
-	};
-
-	await html2pdf().set(opt).from(element).save();
-}
-
 ////////////////////////
 // CONTROLS
 ////////////////////////
@@ -621,13 +583,9 @@ function setupControls() {
 	}
 
 	if (printBtn) {
-		printBtn.addEventListener("click", async () => {
-			try {
-				await downloadPdfDirectly();
-			} catch (err) {
-				console.error("Błąd generowania PDF:", err);
-				alert("Nie udało się pobrać PDF.");
-			}
+		printBtn.addEventListener("click", () => {
+			document.title = buildPdfFileName(profile);
+			window.print();
 		});
 	}
 }
