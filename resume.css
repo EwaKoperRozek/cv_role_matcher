@@ -204,7 +204,7 @@ ul li::before {
   align-items: flex-start;
   gap: 16px;
   width: 100%;
-  padding: 12px 16px;
+  padding: 12px 24px;
   background: #fff;
   border-bottom: 1px solid #ddd;
 }
