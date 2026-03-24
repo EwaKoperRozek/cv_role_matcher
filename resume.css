@@ -183,7 +183,7 @@ ul li::before {
   margin-top: 0.7rem;
   max-width: 600px;
   text-align: justify;
-  margin-left: 2.0rem;
+  margin-left: 2rem;
 }
 
 .cv-entry-byline,
@@ -193,15 +193,34 @@ ul li::before {
   gap: 12px;
 }
 
+/* TOOLBAR */
+
 .toolbar {
   position: sticky;
   top: 0;
   z-index: 1000;
   display: flex;
-  gap: 8px;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
   padding: 12px;
   background: #fff;
   border-bottom: 1px solid #ddd;
+}
+
+.toolbar-left {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+}
+
+.toolbar-right {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
 }
 
 .toolbar button {
@@ -213,28 +232,15 @@ ul li::before {
   cursor: pointer;
 }
 
-/* dopisana sekcja do funkcjonalnosci swicthing image */
+.toolbar button:hover {
+  background: #f7f7f7;
+}
+
 .photo-upload-note {
-  align-self: center;
   font-size: 12px;
   color: #666;
-  margin-left: 4px;
+  line-height: 1.3;
 }
-
-@media screen and (max-width: 768px) {
-  .toolbar {
-    flex-wrap: wrap;
-    align-items: flex-start;
-  }
-
-  .photo-upload-note {
-    width: 100%;
-    margin-left: 0;
-    margin-top: 2px;
-    font-size: 11px;
-  }
-}
-/* stop */
 
 /* TELEFON / MAŁE EKRANY - TYLKO EKRAN */
 
@@ -243,6 +249,28 @@ ul li::before {
     font-size: 14px;
     -webkit-text-size-adjust: 100%;
     text-size-adjust: 100%;
+  }
+
+  .toolbar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  .toolbar-left,
+  .toolbar-right {
+    width: 100%;
+  }
+
+  .toolbar-right {
+    justify-content: flex-start;
+    margin-left: 0;
+    flex-wrap: wrap;
+  }
+
+  .photo-upload-note {
+    font-size: 11px;
+    margin-top: 2px;
   }
 
   #a4 {
