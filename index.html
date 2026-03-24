@@ -7,11 +7,23 @@
   <link rel="stylesheet" type="text/css" href="resume.css">
 </head>
 <body>
-  <div class="toolbar no-print">
+  <!-- <div class="toolbar no-print">
     <button id="pasteBtn" type="button">Wklej JSON</button>
     <button id="printBtn" type="button">Pobierz PDF</button>
-  </div>
+  </div> -->
 
+  <div class="toolbar no-print">
+    <button id="pasteBtn" type="button">Wklej JSON</button>
+    <button id="replacePhotoBtn" type="button">Podmień zdjęcie</button>
+    <button id="printBtn" type="button">Pobierz PDF</button>
+  
+    <input id="photoUpload" type="file" accept=".jpg,.jpeg,image/jpeg" hidden>
+  
+    <div class="photo-upload-note">
+      Polecany rozmiar zdjęcia: 300x400 px, JPG
+    </div>
+  </div>
+  
   <div id="resume-root"></div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
