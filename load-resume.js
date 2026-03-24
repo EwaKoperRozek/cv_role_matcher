@@ -5,6 +5,8 @@ if (window.location.href.includes('pdf')) {
 
 let profile = {};
 let sectionList = [];
+let uploadedPhotoDataUrl = localStorage.getItem("uploadedPhotoDataUrl") || "";
+const FORCED_PHOTO_NAME = "zdjecie.jpg";
 
 ////////////////////////
 // PAGE TEMPLATE
@@ -218,9 +220,30 @@ function buildDocumentTitle() {
 	const jobTitle = sanitizeFilePart(profile?.target?.job_title);
 	const company = sanitizeFilePart(profile?.target?.company);
 
-	return [firstName, lastName, company]	//jobtitle deleted
+	return [firstName, lastName, company]
 		.filter(Boolean)
 		.join("_");
+}
+
+function getEffectivePhotoSrc() {
+	if (uploadedPhotoDataUrl) return uploadedPhotoDataUrl;
+	return profile.photo || "";
+}
+
+function persistUploadedPhoto(dataUrl) {
+	uploadedPhotoDataUrl = dataUrl;
+	localStorage.setItem("uploadedPhotoDataUrl", dataUrl);
+
+	if (!profile || typeof profile !== "object") {
+		profile = {};
+	}
+
+	profile.photo = FORCED_PHOTO_NAME;
+}
+
+function clearUploadedPhoto() {
+	uploadedPhotoDataUrl = "";
+	localStorage.removeItem("uploadedPhotoDataUrl");
 }
 
 ////////////////////////
@@ -297,12 +320,13 @@ async function signalRenderReady() {
 
 function renderPhotoBlock() {
 	const showPhoto = !profile.render || profile.render.show_photo !== false;
+	const photoSrc = getEffectivePhotoSrc();
 
-	if (!profile.photo || !showPhoto) return "";
+	if (!photoSrc || !showPhoto) return "";
 
 	return `
 	<div class="photo">
-		<img src="${profile.photo}" alt="${profile.name || ''} ${profile.surname || ''}">
+		<img id="cv-photo" src="${photoSrc}" alt="${profile.name || ''} ${profile.surname || ''}">
 	</div>
 	`;
 }
@@ -572,12 +596,19 @@ function setupControls() {
 	const pasteBtn = document.getElementById("pasteBtn");
 	const printBtn = document.getElementById("printBtn");
 	const downloadBtn = document.getElementById("downloadBtn");
+	const replacePhotoBtn = document.getElementById("replacePhotoBtn");
+	const photoUpload = document.getElementById("photoUpload");
 
 	if (pasteBtn) {
 		pasteBtn.addEventListener("click", async () => {
 			try {
 				const text = await navigator.clipboard.readText();
 				const data = JSON.parse(text);
+
+				if (!uploadedPhotoDataUrl) {
+					clearUploadedPhoto();
+				}
+
 				await renderFromProfile(data);
 			} catch (err) {
 				console.error("Błąd wklejania JSON:", err);
@@ -595,6 +626,64 @@ function setupControls() {
 	if (downloadBtn) {
 		downloadBtn.addEventListener("click", () => {
 			window.print();
+		});
+	}
+
+	if (replacePhotoBtn && photoUpload) {
+		replacePhotoBtn.addEventListener("click", () => {
+			photoUpload.click();
+		});
+
+		photoUpload.addEventListener("change", async (event) => {
+			const file = event.target.files?.[0];
+			if (!file) return;
+
+			const isJpg =
+				file.type === "image/jpeg" ||
+				/\.jpe?g$/i.test(file.name);
+
+			if (!isJpg) {
+				alert("Wgraj zdjęcie w formacie JPG.");
+				photoUpload.value = "";
+				return;
+			}
+
+			const reader = new FileReader();
+
+			reader.onload = async (e) => {
+				const dataUrl = e.target?.result;
+
+				if (!dataUrl || typeof dataUrl !== "string") {
+					alert("Nie udało się wczytać zdjęcia.");
+					photoUpload.value = "";
+					return;
+				}
+
+				persistUploadedPhoto(dataUrl);
+
+				const currentImg = document.getElementById("cv-photo");
+				if (currentImg) {
+					currentImg.src = dataUrl;
+
+					if (!currentImg.complete) {
+						await new Promise(resolve => {
+							currentImg.onload = () => resolve();
+							currentImg.onerror = () => resolve();
+						});
+					}
+				} else {
+					await renderFromProfile(profile);
+				}
+
+				photoUpload.value = "";
+			};
+
+			reader.onerror = () => {
+				alert("Wystąpił błąd przy wczytywaniu zdjęcia.");
+				photoUpload.value = "";
+			};
+
+			reader.readAsDataURL(file);
 		});
 	}
 }
