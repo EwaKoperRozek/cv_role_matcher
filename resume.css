@@ -213,6 +213,29 @@ ul li::before {
   cursor: pointer;
 }
 
+/* dopisana sekcja do funkcjonalnosci swicthing image */
+.photo-upload-note {
+  align-self: center;
+  font-size: 12px;
+  color: #666;
+  margin-left: 4px;
+}
+
+@media screen and (max-width: 768px) {
+  .toolbar {
+    flex-wrap: wrap;
+    align-items: flex-start;
+  }
+
+  .photo-upload-note {
+    width: 100%;
+    margin-left: 0;
+    margin-top: 2px;
+    font-size: 11px;
+  }
+}
+/* stop */
+
 /* TELEFON / MAŁE EKRANY - TYLKO EKRAN */
 
 @media screen and (max-width: 768px) {
