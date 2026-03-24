@@ -122,7 +122,8 @@ const entryConfigs = {
 		date: "date",
 		subtitle: "school",
 		description: "coursework",
-		nojustify: true
+		nojustify: true,
+		inlineDescription: true
 	}
 };
 
@@ -357,13 +358,21 @@ function renderEntry(item, config) {
 		const value = item[config.description];
 
 		if (value && (Array.isArray(value) ? value.length > 0 : true)) {
-			html += `
-			<div class="cv-entry-desc">
-				<ul ${config.nojustify ? 'class="no-justify"' : ''}>
-					${generateDescriptionList(value)}
-				</ul>
-			</div>
-			`;
+			if (config.inlineDescription) {
+				html += `
+				<div class="cv-entry-desc ${config.nojustify ? 'no-justify' : ''}">
+					${joinDescriptionInline(value)}
+				</div>
+				`;
+			} else {
+				html += `
+				<div class="cv-entry-desc">
+					<ul ${config.nojustify ? 'class="no-justify"' : ''}>
+						${generateDescriptionList(value)}
+					</ul>
+				</div>
+				`;
+			}
 		}
 	}
 
